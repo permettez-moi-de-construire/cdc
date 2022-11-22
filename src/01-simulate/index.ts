@@ -9,8 +9,9 @@ const waitFor = (delay: number) =>
 
 const go = async () => {
   try {
-    prismaClient.$connect()
+    await prismaClient.$connect()
 
+    // Run some queries (creates, updates, deletes, transactions)
     console.log('Creating Bouba')
     const bouba = await prismaClient.bear.create({
       data: {
@@ -82,7 +83,7 @@ const go = async () => {
       },
     })
   } finally {
-    prismaClient.$disconnect().catch(console.error)
+    await prismaClient.$disconnect().catch(console.error)
   }
 }
 

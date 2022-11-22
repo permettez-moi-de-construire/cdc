@@ -4,14 +4,12 @@ import { CleanedEnv, CommonEnv, commonEnvValidators } from './common-env'
 interface AppEnv extends CommonEnv {
   PORT: number
   DATABASE_URL: string
-  AMQP_URL: string
 }
 
 const appEnvValidators = {
   ...commonEnvValidators,
   PORT: envalid.port(),
   DATABASE_URL: envalid.url(),
-  AMQP_URL: envalid.url(),
 }
 
 const getAppEnv = (env: NodeJS.ProcessEnv = process.env) => {

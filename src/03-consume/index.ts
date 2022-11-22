@@ -1,23 +1,39 @@
-import { PrismaClient } from '@prisma/client'
+import chalk from 'chalk'
 import { Amqp } from '@permettezmoideconstruire/amqp-connector'
 import { appEnv } from '../common/env/app-env'
+import JSONBig from 'json-bigint'
 
-const prismaClient = new PrismaClient()
 const amqpClient = new Amqp({
   confirm: true,
 })
 
+const amqpExchange = amqpClient.defineQueue(appEnv.AQMP_CONSUME_QUEUE, {
+  durable: true,
+})
+
 const go = async () => {
   try {
-    await Promise.all([
-      prismaClient.$connect(),
-      amqpClient.connect(appEnv.AMQP_URL),
-    ])
+    await amqpClient.connect(appEnv.AMQP_URL)
+
+    await new Promise(async () => {
+      await amqpExchange.consume(
+        async (msg) => {
+          const parsedMsg = {
+            ...msg,
+            content: JSONBig.parse(msg.content.toString()),
+          }
+          console.log(`Received event`)
+          console.log(chalk`{blue ${JSONBig.stringify(parsedMsg, null, 2)} }`)
+        },
+        { noAck: true },
+      )
+
+      console.log(
+        chalk`Waiting for amqp events on {blue ${appEnv.AQMP_CONSUME_QUEUE} }`,
+      )
+    })
   } finally {
-    await Promise.all([
-      prismaClient.$disconnect().catch(console.error),
-      amqpClient.disconnect().catch(console.error),
-    ])
+    await amqpClient.disconnect().catch(console.error)
   }
 }
 
