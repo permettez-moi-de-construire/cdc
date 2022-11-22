@@ -5,21 +5,44 @@
   "author": "Cyril CHAPON <cyril@permettezmoideconstruire.fr>",
   "license": "MIT",
   "scripts": {
-    "lint": "eslint ./src",
-    "fix": "eslint ./src --fix",
-    "format": "prettier --write \"./src/**/*.{ts,tsx}\""
+    "dev:log": "dotenv -- ts-node src/02-log/index",
+    "dev:simulate": "dotenv -- ts-node src/01-simulate/index",
+    "lint": "eslint src",
+    "fix": "eslint src --fix",
+    "format": "prettier --write \"src/**/*.{ts,tsx}\"",
+    "generate": "prisma generate",
+    "db:reset": "prisma migrate reset",
+    "db:migrate": "prisma migrate deploy",
+    "db:migration:up": "prisma migrate dev --create-only --name",
+    "db:migration:down": "prisma migrate diff --from-schema-datamodel prisma/schema.prisma --to-schema-datasource prisma/schema.prisma --script > down.sql",
+    "db:create-repl": "dotenv -- ts-node src/_scripts/postgres/create-repl",
+    "db:drop-repl": "dotenv -- ts-node src/_scripts/postgres/drop-repl",
+    "db:create-pub": "dotenv -- ts-node src/_scripts/postgres/create-pub",
+    "db:drop-pub": "dotenv -- ts-node src/_scripts/postgres/drop-pub",
+    "amqp:create-vhost": "dotenv -- ts-node src/_scripts/amqp/create-amqp-vhost",
+    "amqp:drop-vhost": "dotenv -- ts-node src/_scripts/amqp/drop-amqp-vhost"
   },
   "dependencies": {
-    "@permettezmoideconstruire/amqp-connector": "^2.1.0",
-    "typescript": "^4.9.3"
+    "@permettezmoideconstruire/amqp-connector": "^2.3.3",
+    "@prisma/client": "4.6.1",
+    "amqplib": "^0.10.3",
+    "axios": "^1.1.3",
+    "envalid": "^7.3.1",
+    "pg-logical-replication": "^2.0.2",
+    "prisma": "^4.6.1",
+    "ts-node": "^10.9.1"
   },
   "devDependencies": {
+    "@types/amqplib": "^0.10.0",
     "@types/node": "^18.11.9",
+    "@types/pg": "^8.6.5",
     "@typescript-eslint/eslint-plugin": "^5.44.0",
     "@typescript-eslint/parser": "^5.44.0",
+    "dotenv-cli": "^6.0.0",
     "eslint": "^8.28.0",
     "eslint-config-prettier": "^8.5.0",
     "eslint-plugin-prettier": "^4.2.1",
-    "prettier": "^2.7.1"
+    "prettier": "^2.7.1",
+    "typescript": "^4.9.3"
   }
 }

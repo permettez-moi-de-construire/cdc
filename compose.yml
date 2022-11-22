@@ -8,7 +8,7 @@ services:
       RABBITMQ_DEFAULT_USER: root
       RABBITMQ_DEFAULT_PASS: root
     volumes: 
-      - ./data/rabbitmq:/var/lib/rabbitmq
+      - ./_data/rabbitmq:/var/lib/rabbitmq
     # tmpfs:
     #   - /var/lib/rabbitmq
     mem_limit: 500m
@@ -20,12 +20,27 @@ services:
     environment:
       POSTGRES_USER: root
       POSTGRES_PASSWORD: root
-    volumes: 
-      - ./data/postgres:/var/lib/postgresql/data
+    # Required config for logical replication
+    command: [ "postgres", "-c", "wal_level=logical" ]
+    volumes:
+      - ./_data/postgres:/var/lib/postgresql/data
     # tmpfs:
     #   - /var/lib/postgresql/data
     mem_limit: 500m
     mem_reservation: 300m
+  # postgres:
+  #   image: debezium/postgres:15-alpine
+  #   ports:
+  #     - 5438:5432
+  #   environment:
+  #     POSTGRES_USER: root
+  #     POSTGRES_PASSWORD: root
+  #   volumes:
+  #     - ./_data/postgres:/var/lib/postgresql/data
+  #   # tmpfs:
+  #   #   - /var/lib/postgresql/data
+  #   mem_limit: 500m
+  #   mem_reservation: 300m
   adminer:
     image: adminer
     ports:

@@ -100,7 +100,10 @@
     // "skipDefaultLibCheck": true,                      /* Skip type checking .d.ts files that are included with TypeScript. */
     "skipLibCheck": true                                 /* Skip type checking all .d.ts files. */
   },
-  "include": [
-    "./src"
+  "files": [
+    "./src/index.ts",
+    "src/01-simulate/index.ts",
+    "src/02-log/index.ts",
+    "src/03-consume/index.ts"
   ]
 }
