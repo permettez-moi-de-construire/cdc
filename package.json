@@ -1,0 +1,25 @@
+{
+  "name": "pg-amqp-poc",
+  "version": "0.0.1",
+  "main": "index.ts",
+  "author": "Cyril CHAPON <cyril@permettezmoideconstruire.fr>",
+  "license": "MIT",
+  "scripts": {
+    "lint": "eslint ./src",
+    "fix": "eslint ./src --fix",
+    "format": "prettier --write \"./src/**/*.{ts,tsx}\""
+  },
+  "dependencies": {
+    "@permettezmoideconstruire/amqp-connector": "^2.1.0",
+    "typescript": "^4.9.3"
+  },
+  "devDependencies": {
+    "@types/node": "^18.11.9",
+    "@typescript-eslint/eslint-plugin": "^5.44.0",
+    "@typescript-eslint/parser": "^5.44.0",
+    "eslint": "^8.28.0",
+    "eslint-config-prettier": "^8.5.0",
+    "eslint-plugin-prettier": "^4.2.1",
+    "prettier": "^2.7.1"
+  }
+}
