@@ -1,0 +1,30 @@
+{
+  "name": "@algar/pg-amqp-poc-amqp",
+  "version": "0.0.1",
+  "main": "index.ts",
+  "license": "MIT",
+  "scripts": {
+    "lint": "eslint src",
+    "fix": "eslint src --fix",
+    "format": "prettier --write \"src/**/*.{ts,tsx}\"",
+    "amqp:prepare": "yarn _amqp:create-vhost && yarn _amqp:create-exchange && yarn _amqp:create-queue && yarn _amqp:bind-queue",
+    "amqp:teardown": "yarn _amqp:unbind-queue && yarn _amqp:drop-queue && yarn _amqp:drop-exchange && yarn _amqp:drop-vhost",
+    "_amqp:create-vhost": "dotenv -e ../../.env -- ts-node src/_scripts/create-amqp-vhost",
+    "_amqp:drop-vhost": "dotenv -e ../../.env -- ts-node src/_scripts/drop-amqp-vhost",
+    "_amqp:create-exchange": "dotenv -e ../../.env -- ts-node src/_scripts/create-amqp-exchange",
+    "_amqp:drop-exchange": "dotenv -e ../../.env -- ts-node src/_scripts/drop-amqp-exchange",
+    "_amqp:create-queue": "dotenv -e ../../.env -- ts-node src/_scripts/create-amqp-queue",
+    "_amqp:drop-queue": "dotenv -e ../../.env -- ts-node src/_scripts/drop-amqp-queue",
+    "_amqp:bind-queue": "dotenv -e ../../.env -- ts-node src/_scripts/bind-amqp-queue",
+    "_amqp:unbind-queue": "dotenv -e ../../.env -- ts-node src/_scripts/unbind-amqp-queue"
+  },
+  "dependencies": {
+    "@permettezmoideconstruire/amqp-connector": "^2.3.3",
+    "axios": "^1.2.0",
+    "chalk": "^4.1.2",
+    "envalid": "^7.3.1"
+  },
+  "devDependencies": {
+    "@types/amqplib": "^0.10.0"
+  }
+}

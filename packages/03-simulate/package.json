@@ -1,0 +1,16 @@
+{
+  "name": "@algar/pg-amqp-poc-simulate",
+  "version": "0.0.1",
+  "main": "index.ts",
+  "license": "MIT",
+  "scripts": {
+    "dev": "dotenv -e ../../.env -- ts-node src/index",
+    "lint": "eslint src",
+    "fix": "eslint src --fix",
+    "format": "prettier --write \"src/**/*.{ts,tsx}\""
+  },
+  "dependencies": {
+    "@algar/pg-amqp-poc-db": "0.0.1",
+    "envalid": "^7.3.1"
+  }
+}

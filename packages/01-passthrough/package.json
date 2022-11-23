@@ -1,0 +1,22 @@
+{
+  "name": "@algar/pg-amqp-poc-passthrough",
+  "version": "0.0.1",
+  "main": "index.ts",
+  "license": "MIT",
+  "scripts": {
+    "dev": "dotenv -e ../../.env -- ts-node src/index",
+    "lint": "eslint src",
+    "fix": "eslint src --fix",
+    "format": "prettier --write \"src/**/*.{ts,tsx}\""
+  },
+  "dependencies": {
+    "@permettezmoideconstruire/amqp-connector": "^2.3.3",
+    "chalk": "^4.1.2",
+    "envalid": "^7.3.1",
+    "json-bigint": "^1.0.0",
+    "pg-logical-replication": "^2.0.2"
+  },
+  "devDependencies": {
+    "@types/amqplib": "^0.10.0"
+  }
+}

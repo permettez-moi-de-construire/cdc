@@ -1,0 +1,16 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "paths": {
+      "@algar/pg-amqp-poc-db": ["../00-database/src/index.ts"]
+    }
+  },
+  "files": [
+    "src/index.ts"
+  ],
+  "references": [
+    {
+      "path": "../00-database"
+    }
+  ],
+}
