@@ -1,22 +1,14 @@
 import chalk from 'chalk'
-import { Amqp } from '@permettezmoideconstruire/amqp-connector'
+import { amqpClient, amqpQueue } from '@algar/pg-amqp-poc-amqp'
 import { appEnv } from './env/app-env'
 import JSONBig from 'json-bigint'
-
-const amqpClient = new Amqp({
-  confirm: true,
-})
-
-const amqpExchange = amqpClient.defineQueue(appEnv.AMQP_CONSUME_QUEUE, {
-  durable: true,
-})
 
 const go = async () => {
   try {
     await amqpClient.connect(appEnv.AMQP_URL)
 
     await new Promise(async () => {
-      await amqpExchange.consume(
+      await amqpQueue.consume(
         async (msg) => {
           const parsedMsg = {
             ...msg,
@@ -28,9 +20,7 @@ const go = async () => {
         { noAck: true },
       )
 
-      console.log(
-        chalk`Waiting for amqp events on {blue ${appEnv.AMQP_CONSUME_QUEUE} }`,
-      )
+      console.log(chalk`Waiting for amqp events on {blue ${amqpQueue.name} }`)
     })
   } finally {
     await amqpClient.disconnect().catch(console.error)

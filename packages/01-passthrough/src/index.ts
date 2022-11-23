@@ -1,19 +1,10 @@
 import chalk from 'chalk'
-import { Amqp } from '@permettezmoideconstruire/amqp-connector'
+import { amqpClient, amqpExchange } from '@algar/pg-amqp-poc-amqp'
 import { Pgoutput } from 'pg-logical-replication'
 import { appEnv } from './env/app-env'
 import JSONBig from 'json-bigint'
 
 import { listeningService, pgOutputPlugin } from './repl-log-service'
-
-const amqpClient = new Amqp({
-  confirm: true,
-})
-
-const amqpExchange = amqpClient.defineExchange(appEnv.AMQP_PUBLISH_EXCHANGE, {
-  type: 'topic',
-  durable: true,
-})
 
 const go = async () => {
   try {

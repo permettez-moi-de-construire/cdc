@@ -1,6 +1,16 @@
 {
   "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "paths": {
+      "@algar/pg-amqp-poc-amqp": ["../00-amqp/src/index.ts"]
+    }
+  },
   "files": [
     "src/index.ts"
-  ]
+  ],
+  "references": [
+    {
+      "path": "../00-amqp"
+    }
+  ],
 }
