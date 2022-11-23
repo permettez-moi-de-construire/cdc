@@ -6,18 +6,35 @@ import JSONBig from 'json-bigint'
 
 import { listeningService, pgOutputPlugin } from './repl-log-service'
 
+type MessageDDL =
+  | Pgoutput.MessageInsert
+  | Pgoutput.MessageUpdate
+  | Pgoutput.MessageDelete
+
+const isDdlChangeMessage = (msg: Pgoutput.Message): msg is MessageDDL =>
+  (msg as MessageDDL).tag != null &&
+  ['insert', 'update', 'delete'].includes(msg.tag)
+
 const go = async () => {
   try {
     await amqpClient.connect(appEnv.AMQP_URL)
 
-    listeningService.on('data', async (lsn: string, log: Pgoutput.Message) => {
+    listeningService.on('data', async (lsn: string, msg: Pgoutput.Message) => {
+      if (!isDdlChangeMessage(msg)) {
+        // Ignoring DSL operations and transaction operations
+        return
+      }
+
       try {
-        const serializedLog = Buffer.from(JSONBig.stringify(log))
-        await amqpExchange.send(appEnv.AMQP_ROUTING_KEY, serializedLog)
+        const serializedMsg = Buffer.from(JSONBig.stringify(msg))
+        await amqpExchange.send(
+          `${appEnv.AMQP_ROUTING_KEY}.${msg.relation.name}.${msg.relation}`,
+          serializedMsg,
+        )
         console.log(chalk`Forwarded event {blue ${lsn} }`)
       } catch (err: unknown) {
         console.error(chalk`Error forwarding event {red ${lsn}}`)
-        console.error(log)
+        console.error(msg)
         console.error(err)
       }
     })
