@@ -11,6 +11,6 @@
 
 ## Starting
 - Open 3 terminals at root
-- `yarn dev:consume`
-- `yarn dev:passthrough`
+- `yarn dev:webhooks`
+- `yarn dev:cdc`
 - `yarn dev:simulate`

@@ -1,5 +1,5 @@
 {
-  "name": "@algar/cdc-consume",
+  "name": "@algar/cdc-webhooks",
   "version": "0.0.1",
   "main": "index.ts",
   "license": "MIT",
