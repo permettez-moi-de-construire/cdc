@@ -1,5 +1,5 @@
 {
-  "name": "@algar/pg-amqp-poc-passthrough",
+  "name": "@algar/cdc-passthrough",
   "version": "0.0.1",
   "main": "index.ts",
   "license": "MIT",
@@ -11,7 +11,7 @@
     "format": "prettier --write \"src/**/*.{ts,tsx}\""
   },
   "dependencies": {
-    "@algar/pg-amqp-poc-amqp": "0.0.1",
+    "@algar/cdc-amqp": "0.0.1",
     "@permettezmoideconstruire/amqp-connector": "^2.3.3",
     "chalk": "^4.1.2",
     "date-fns": "^2.29.3",

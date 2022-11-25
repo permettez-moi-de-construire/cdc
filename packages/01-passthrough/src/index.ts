@@ -1,5 +1,5 @@
 import chalk from 'chalk'
-import { amqpClient, amqpExchange } from '@algar/pg-amqp-poc-amqp'
+import { amqpClient, amqpExchange } from '@algar/cdc-amqp'
 import { Wal2Json } from 'pg-logical-replication'
 import { appEnv } from './env/app-env'
 import { serializeChange } from './message'

@@ -1,4 +1,3 @@
-import { amqpQueue } from '@algar/pg-amqp-poc-amqp'
 import Amqp, {
   AmqpExchange,
   AmqpQueue,

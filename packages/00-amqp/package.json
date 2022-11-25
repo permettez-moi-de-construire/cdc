@@ -1,5 +1,5 @@
 {
-  "name": "@algar/pg-amqp-poc-amqp",
+  "name": "@algar/cdc-amqp",
   "version": "0.0.1",
   "main": "src/index.ts",
   "license": "MIT",

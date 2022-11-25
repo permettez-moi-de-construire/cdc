@@ -1,5 +1,5 @@
 {
-  "name": "@algar/pg-amqp-poc",
+  "name": "@algar/cdc",
   "private": "true",
   "version": "0.0.1",
   "packageManager": "yarn@3.2.0",
@@ -17,21 +17,21 @@
     ]
   },
   "scripts": {
-    "dev:passthrough": "yarn workspace @algar/pg-amqp-poc-passthrough dev",
-    "dev:consume": "yarn workspace @algar/pg-amqp-poc-consume dev",
-    "dev:simulate": "yarn workspace @algar/pg-amqp-poc-simulate dev",
-    "generate:db": "yarn workspace @algar/pg-amqp-poc-db migrate",
-    "migrate:db": "yarn workspace @algar/pg-amqp-poc-db migrate",
-    "reset:db": "yarn workspace @algar/pg-amqp-poc-db reset",
-    "generate:webhooks": "yarn workspace @algar/pg-amqp-poc-consume migrate",
-    "migrate:webhooks": "yarn workspace @algar/pg-amqp-poc-consume migrate",
-    "reset:webhooks": "yarn workspace @algar/pg-amqp-poc-consume reset",
-    "prepare:dbq": "yarn workspace @algar/pg-amqp-poc-db dbq:prepare",
-    "teardown:dbq": "yarn workspace @algar/pg-amqp-poc-db dbq:teardown",
-    "prepare:amqp": "yarn workspace @algar/pg-amqp-poc-amqp amqp:prepare",
-    "teardown:amqp": "yarn workspace @algar/pg-amqp-poc-amqp amqp:teardown"
+    "dev:passthrough": "yarn workspace @algar/cdc-passthrough dev",
+    "dev:consume": "yarn workspace @algar/cdc-consume dev",
+    "dev:simulate": "yarn workspace @algar/cdc-simulate dev",
+    "generate:db": "yarn workspace @algar/cdc-db migrate",
+    "migrate:db": "yarn workspace @algar/cdc-db migrate",
+    "reset:db": "yarn workspace @algar/cdc-db reset",
+    "generate:webhooks": "yarn workspace @algar/cdc-consume migrate",
+    "migrate:webhooks": "yarn workspace @algar/cdc-consume migrate",
+    "reset:webhooks": "yarn workspace @algar/cdc-consume reset",
+    "prepare:dbq": "yarn workspace @algar/cdc-db dbq:prepare",
+    "teardown:dbq": "yarn workspace @algar/cdc-db dbq:teardown",
+    "prepare:amqp": "yarn workspace @algar/cdc-amqp amqp:prepare",
+    "teardown:amqp": "yarn workspace @algar/cdc-amqp amqp:teardown"
   },
-  "repository": "git@github.com:permettez-moi-de-construire/pg-amqp-poc.git",
+  "repository": "git@github.com:permettez-moi-de-construire/cdc.git",
   "author": "Cyril CHAPON <cyril@permettezmoideconstruire.fr>",
   "license": "MIT",
   "devDependencies": {

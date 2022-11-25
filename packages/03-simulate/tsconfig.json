@@ -2,7 +2,7 @@
   "extends": "../../tsconfig.json",
   "compilerOptions": {
     "paths": {
-      "@algar/pg-amqp-poc-db": ["../00-database/src/index.ts"]
+      "@algar/cdc-db": ["../00-database/src/index.ts"]
     }
   },
   "files": [

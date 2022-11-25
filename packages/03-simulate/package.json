@@ -1,5 +1,5 @@
 {
-  "name": "@algar/pg-amqp-poc-simulate",
+  "name": "@algar/cdc-simulate",
   "version": "0.0.1",
   "main": "index.ts",
   "license": "MIT",
@@ -10,7 +10,7 @@
     "format": "prettier --write \"src/**/*.{ts,tsx}\""
   },
   "dependencies": {
-    "@algar/pg-amqp-poc-db": "0.0.1",
+    "@algar/cdc-db": "0.0.1",
     "envalid": "^7.3.1"
   }
 }

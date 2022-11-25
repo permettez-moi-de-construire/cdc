@@ -1,4 +1,4 @@
-import { PrismaClient } from '@algar/pg-amqp-poc-db'
+import { PrismaClient } from '@algar/cdc-db'
 
 const prismaClient = new PrismaClient({
   // log: ['query', 'info', 'warn', 'error'],

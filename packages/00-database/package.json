@@ -1,5 +1,5 @@
 {
-  "name": "@algar/pg-amqp-poc-db",
+  "name": "@algar/cdc-db",
   "version": "0.0.1",
   "main": "src/index.ts",
   "author": "Cyril CHAPON <cyril@permettezmoideconstruire.fr>",

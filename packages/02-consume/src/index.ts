@@ -1,5 +1,5 @@
 import chalk from 'chalk'
-import { amqpClient, amqpQueue, amqpExchange } from '@algar/pg-amqp-poc-amqp'
+import { amqpClient, amqpQueue, amqpExchange } from '@algar/cdc-amqp'
 import { appEnv } from './env/app-env'
 import { PrismaClient } from '@prisma/client'
 import express from 'express'
