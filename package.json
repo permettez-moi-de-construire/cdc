@@ -19,7 +19,7 @@
   "scripts": {
     "dev:cdc": "yarn workspace @algar/cdc-cdc dev",
     "dev:webhooks": "yarn workspace @algar/cdc-webhooks dev",
-    "dev:simulate": "yarn workspace @algar/cdc-simulate dev",
+    "dev:simulate-db": "yarn workspace @algar/cdc-simulate-db dev",
     "generate:db": "yarn workspace @algar/cdc-db migrate",
     "migrate:db": "yarn workspace @algar/cdc-db migrate",
     "reset:db": "yarn workspace @algar/cdc-db reset",

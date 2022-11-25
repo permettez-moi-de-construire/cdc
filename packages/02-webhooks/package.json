@@ -19,6 +19,7 @@
     "@algar/cdc-amqp": "0.0.1",
     "@permettezmoideconstruire/amqp-connector": "^2.3.3",
     "@prisma/client": "^4.6.1",
+    "axios": "^1.2.0",
     "chalk": "^4.1.2",
     "envalid": "^7.3.1",
     "express": "^4.18.2",

@@ -4,9 +4,10 @@ import Amqp, {
   OnJsonMessageCallback,
 } from '@permettezmoideconstruire/amqp-connector'
 import { Webhook } from '@prisma/client'
-import type { Channel, Options, Replies } from 'amqplib'
+import type { Channel, Message, Options, Replies } from 'amqplib'
 import _shortUuid from 'short-uuid'
 import { appEnv } from './env/app-env'
+import { logAmqpEvent, logFullAmqpEvent, logger } from './log'
 const shortUuid = _shortUuid()
 
 const createQueue = (amqpClient: Amqp) => async (webhook: Webhook) => {
@@ -31,14 +32,19 @@ const bindQueue =
 
 const consumeQueue =
   (amqpQueue: AmqpQueue) =>
-  async (
-    callback: (amqpQueue: AmqpQueue) => OnJsonMessageCallback,
-    options: Options.Consume,
-  ) => {
-    const reply = (await amqpQueue.consumeJson(
-      callback(amqpQueue),
-      options,
-    )) as Replies.Consume
+  async (callback: OnJsonMessageCallback, options: Options.Consume) => {
+    const reply = (await amqpQueue.consumeJson(async (msg) => {
+      try {
+        logAmqpEvent(logger.verbose)(msg, amqpQueue)
+        logFullAmqpEvent(logger.debug)(msg)
+
+        await callback(msg)
+        await amqpQueue.ack(msg as Message)
+      } catch (err: unknown) {
+        logger.error(`Error received event`)
+        await amqpQueue.nack(msg as Message, false, false)
+      }
+    }, options)) as Replies.Consume
 
     return reply
   }
@@ -48,7 +54,7 @@ const createConsumingQueue =
   (amqpExchange: AmqpExchange) =>
   (webhook: Webhook) =>
   async (
-    callback: (amqpQueue: AmqpQueue) => OnJsonMessageCallback,
+    callback: (webhook: Webhook) => OnJsonMessageCallback,
     options: Options.Consume,
   ) => {
     // Create an AMQP queue
@@ -61,7 +67,10 @@ const createConsumingQueue =
     )
 
     // Start consuming
-    const { consumerTag } = await consumeQueue(amqpQueue)(callback, options)
+    const { consumerTag } = await consumeQueue(amqpQueue)(
+      callback(webhook),
+      options,
+    )
 
     return {
       amqpQueue,

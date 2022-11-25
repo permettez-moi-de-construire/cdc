@@ -13,4 +13,4 @@
 - Open 3 terminals at root
 - `yarn dev:webhooks`
 - `yarn dev:cdc`
-- `yarn dev:simulate`
+- `yarn dev:simulate-db`

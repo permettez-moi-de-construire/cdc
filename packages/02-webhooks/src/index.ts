@@ -47,9 +47,12 @@ const go = async () => {
       const amqpQueue = amqpClient.defineQueue(webhook.queue, {
         durable: true,
       })
-      const { consumerTag } = await consumeQueue(amqpQueue)(callWebhook, {
-        noAck: false,
-      })
+      const { consumerTag } = await consumeQueue(amqpQueue)(
+        callWebhook(webhook),
+        {
+          noAck: false,
+        },
+      )
       logger.info(chalk`Binding webhook {blue ${webhook.id}}`)
 
       await prismaClient.webhook.update({
