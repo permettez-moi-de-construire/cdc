@@ -119,8 +119,8 @@ const createAsyncErrorHandler = <
 
 const createAsyncManagedErrorHandler = <
   P = ParamsDictionary,
-  ResBody = any,
-  ReqBody = any,
+  ResBody = unknown,
+  ReqBody = unknown,
   ReqQuery = Query,
   Err = unknown,
 >(
