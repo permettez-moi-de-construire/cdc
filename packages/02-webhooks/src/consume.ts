@@ -8,6 +8,7 @@ import type { Channel, Message, Options, Replies } from 'amqplib'
 import _shortUuid from 'short-uuid'
 import { appEnv } from './env/app-env'
 import { logAmqpEvent, logFullAmqpEvent, logger } from './log'
+import chalk from 'chalk'
 const shortUuid = _shortUuid()
 
 const createQueue = (amqpClient: Amqp) => async (webhook: Webhook) => {
@@ -41,7 +42,12 @@ const consumeQueue =
         await callback(msg)
         await amqpQueue.ack(msg as Message)
       } catch (err: unknown) {
-        logger.error(`Error received event`)
+        logger.error(
+          chalk`Error handling event {red ${
+            err instanceof Error ? err.message : String(err)
+          }}`,
+        )
+        logger.debug(err)
         await amqpQueue.nack(msg as Message, false, false)
       }
     }, options)) as Replies.Consume

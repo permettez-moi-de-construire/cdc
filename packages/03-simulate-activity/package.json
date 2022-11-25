@@ -1,5 +1,5 @@
 {
-  "name": "@algar/cdc-simulate-db",
+  "name": "@algar/cdc-activity",
   "version": "0.0.1",
   "main": "index.ts",
   "license": "MIT",

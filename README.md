@@ -4,13 +4,16 @@
 - `docker-compose up` at root
 - `nvm use`
 - ```bash
+  yarn generate:db
+  yarn generate:webhook
   yarn migrate:db
   yarn prepare:dbq
   yarn prepare:amqp
   ```
 
 ## Starting
-- Open 3 terminals at root
+- Open 4 terminals at root
+- `yarn dev:receiver`
 - `yarn dev:webhooks`
 - `yarn dev:cdc`
-- `yarn dev:simulate-db`
+- `yarn dev:activity`
