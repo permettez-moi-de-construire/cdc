@@ -1,0 +1,34 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+  previewFeatures = ["interactiveTransactions"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("WEBHOOKS_DATABASE_URL")
+}
+
+model Webhook {
+  id            String   @id @unique @default(uuid())
+  name          String?
+  url           String
+  object        String
+  action        Action
+  queue         String?
+  consumerTag   String?
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @default(now()) @map("updated_at") @updatedAt
+
+  @@map("webhooks")
+}
+
+enum Action {
+  insert
+  update
+  delete
+
+  @@map("action")
+}

@@ -1,6 +1,8 @@
 import { PrismaClient } from '@algar/pg-amqp-poc-db'
 
-const prismaClient = new PrismaClient()
+const prismaClient = new PrismaClient({
+  // log: ['query', 'info', 'warn', 'error'],
+})
 
 const waitFor = (delay: number) =>
   new Promise<void>((resolve) => {

@@ -13,21 +13,21 @@ services:
     #   - /var/lib/rabbitmq
     mem_limit: 500m
     mem_reservation: 300m
-  postgres:
-    image: postgres:15.1-alpine
-    ports:
-      - 5438:5432
-    environment:
-      POSTGRES_USER: root
-      POSTGRES_PASSWORD: root
-    # Required config for logical replication
-    command: [ "postgres", "-c", "wal_level=logical" ]
-    volumes:
-      - ./_data/postgres:/var/lib/postgresql/data
-    # tmpfs:
-    #   - /var/lib/postgresql/data
-    mem_limit: 500m
-    mem_reservation: 300m
+  # postgres:
+  #   image: postgres:15.1-alpine
+  #   ports:
+  #     - 5438:5432
+  #   environment:
+  #     POSTGRES_USER: root
+  #     POSTGRES_PASSWORD: root
+  #   # Required config for logical replication
+  #   command: [ "postgres", "-c", "wal_level=logical" ]
+  #   volumes:
+  #     - ./_data/postgres:/var/lib/postgresql/data
+  #   # tmpfs:
+  #   #   - /var/lib/postgresql/data
+  #   mem_limit: 500m
+  #   mem_reservation: 300m
   # postgres:
   #   image: debezium/postgres:15-alpine
   #   ports:
@@ -41,6 +41,22 @@ services:
   #   #   - /var/lib/postgresql/data
   #   mem_limit: 500m
   #   mem_reservation: 300m
+  postgres:
+    build:
+      context: ./_conf/postgres
+      dockerfile: Dockerfile
+    ports:
+      - 5438:5432
+    environment:
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: root
+    command: [ "postgres", "-c", "wal_level=logical" ]
+    volumes:
+      - ./_data/postgres:/var/lib/postgresql/data
+    # tmpfs:
+    #   - /var/lib/postgresql/data
+    mem_limit: 500m
+    mem_reservation: 300m
   adminer:
     image: adminer
     ports:

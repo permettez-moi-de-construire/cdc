@@ -1,30 +1,80 @@
 import chalk from 'chalk'
-import { amqpClient, amqpQueue } from '@algar/pg-amqp-poc-amqp'
+import { amqpClient, amqpQueue, amqpExchange } from '@algar/pg-amqp-poc-amqp'
 import { appEnv } from './env/app-env'
-import JSONBig from 'json-bigint'
+import { PrismaClient } from '@prisma/client'
+import express from 'express'
+import http from 'http'
+
+import { createRouter } from './routes'
+import { logAmqpEvent, logFullAmqpEvent, logger } from './log'
+import { callWebhook } from './webhook'
+import { consumeQueue } from './consume'
+
+const app = express()
+const server = http.createServer(app)
+
+const prismaClient = new PrismaClient()
+
+app.use(express.json())
 
 const go = async () => {
   try {
-    await amqpClient.connect(appEnv.AMQP_URL)
+    await Promise.all([
+      prismaClient.$connect(),
+      amqpClient.connect(appEnv.AMQP_URL),
+    ])
 
-    await new Promise(async () => {
-      await amqpQueue.consume(
-        async (msg) => {
-          const parsedMsg = {
-            ...msg,
-            content: JSONBig.parse(msg.content.toString()),
-          }
-          console.log(`Received event`)
-          console.log(chalk`{blue ${JSONBig.stringify(parsedMsg, null, 2)} }`)
+    app.use('/webhooks', createRouter(prismaClient, amqpClient, amqpExchange))
+
+    // Consume for monitoring
+    await amqpQueue.consumeJson(
+      async (msg) => {
+        logAmqpEvent(logger.verbose)(msg, amqpQueue)
+        logFullAmqpEvent(logger.debug)(msg)
+      },
+      { noAck: true },
+    )
+    logger.info(chalk`Waiting for amqp events on {blue ${amqpQueue.name} }`)
+
+    // Consume for each subscribed webhook
+    const webhooks = await prismaClient.webhook.findMany()
+    for (const webhook of webhooks) {
+      if (webhook.queue == null) {
+        await prismaClient.webhook.delete({ where: { id: webhook.id } })
+        continue
+      }
+
+      const amqpQueue = amqpClient.defineQueue(webhook.queue, {
+        durable: true,
+      })
+      const { consumerTag } = await consumeQueue(amqpQueue)(callWebhook, {
+        noAck: false,
+      })
+      logger.info(chalk`Binding webhook {blue ${webhook.id}}`)
+
+      await prismaClient.webhook.update({
+        data: {
+          consumerTag,
         },
-        { noAck: true },
-      )
+        where: {
+          id: webhook.id,
+        },
+      })
+    }
 
-      console.log(chalk`Waiting for amqp events on {blue ${amqpQueue.name} }`)
+    server.listen(appEnv.WEBHOOKS_PORT, () =>
+      logger.info(chalk`Magic happens on port {green ${appEnv.WEBHOOKS_PORT}}`),
+    )
+    await new Promise((resolve, reject) => {
+      server.on('close', resolve)
+      server.on('error', reject)
     })
   } finally {
-    await amqpClient.disconnect().catch(console.error)
+    await Promise.all([
+      prismaClient.$disconnect().catch(logger.error),
+      amqpClient.disconnect().catch(logger.error),
+    ])
   }
 }
 
-void go().then(console.log).catch(console.error)
+void go().then().catch(logger.error)

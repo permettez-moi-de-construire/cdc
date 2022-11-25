@@ -1,6 +1,7 @@
 import {
   LogicalReplicationService,
   PgoutputPlugin,
+  Wal2JsonPlugin,
 } from 'pg-logical-replication'
 import { appEnv } from './env/app-env'
 
@@ -21,4 +22,14 @@ const pgOutputPlugin = new PgoutputPlugin({
   publicationNames: [appEnv.DATABASE_REPL_PUB_NAME],
 })
 
-export { listeningService, pgOutputPlugin }
+const wal2JsonPlugin = new Wal2JsonPlugin({
+  formatVersion: '1',
+  includeTimestamp: true,
+  includeSchemas: false,
+  includeTypes: true,
+  includeLsn: true,
+  includePk: true,
+  // writeInChunks: true,
+})
+
+export { listeningService, pgOutputPlugin, wal2JsonPlugin }

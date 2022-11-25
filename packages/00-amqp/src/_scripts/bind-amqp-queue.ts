@@ -5,5 +5,5 @@ void bindQueue(
   mgmtEnv,
   mgmtEnv.AMQP_PUBLISH_EXCHANGE,
   mgmtEnv.AMQP_CONSUME_QUEUE,
-  mgmtEnv.AMQP_ROUTING_KEY,
+  `${mgmtEnv.AMQP_ROUTING_KEY}.*.*`,
 )

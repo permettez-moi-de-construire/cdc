@@ -3,15 +3,29 @@
   "private": "true",
   "version": "0.0.1",
   "packageManager": "yarn@3.2.0",
-  "workspaces": [
-    "packages/*"
-  ],
+  "workspaces": {
+    "packages": [
+      "packages/*"
+    ],
+    "nohoist": [
+      "**/.prisma/**",
+      "**/.prisma",
+      "**/@prisma/**",
+      "**/@prisma",
+      "**/prisma/**",
+      "**/prisma"
+    ]
+  },
   "scripts": {
     "dev:passthrough": "yarn workspace @algar/pg-amqp-poc-passthrough dev",
     "dev:consume": "yarn workspace @algar/pg-amqp-poc-consume dev",
     "dev:simulate": "yarn workspace @algar/pg-amqp-poc-simulate dev",
+    "generate:db": "yarn workspace @algar/pg-amqp-poc-db migrate",
     "migrate:db": "yarn workspace @algar/pg-amqp-poc-db migrate",
     "reset:db": "yarn workspace @algar/pg-amqp-poc-db reset",
+    "generate:webhooks": "yarn workspace @algar/pg-amqp-poc-consume migrate",
+    "migrate:webhooks": "yarn workspace @algar/pg-amqp-poc-consume migrate",
+    "reset:webhooks": "yarn workspace @algar/pg-amqp-poc-consume reset",
     "prepare:dbq": "yarn workspace @algar/pg-amqp-poc-db dbq:prepare",
     "teardown:dbq": "yarn workspace @algar/pg-amqp-poc-db dbq:teardown",
     "prepare:amqp": "yarn workspace @algar/pg-amqp-poc-amqp amqp:prepare",
@@ -29,6 +43,7 @@
     "eslint-config-prettier": "^8.5.0",
     "eslint-plugin-import": "^2.26.0",
     "eslint-plugin-prettier": "^4.2.1",
+    "nodemon": "^2.0.20",
     "prettier": "^2.7.1",
     "typescript": "^4.9.3"
   },
