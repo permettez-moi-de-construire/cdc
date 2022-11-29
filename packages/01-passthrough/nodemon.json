@@ -1,5 +1,0 @@
-{
-  "execMap": {
-    "ts": "dotenv -e ../../.env -- ts-node"
-  }
-}

@@ -5,15 +5,15 @@
   "license": "MIT",
   "scripts": {
     "dev": "nodemon src/index",
-    "start": "dotenv -e ../../.env -- ts-node src/index",
+    "start": "dotenv -e ../../../.env -- ts-node src/index",
     "lint": "eslint src",
     "fix": "eslint src --fix",
     "format": "prettier --write \"src/**/*.{ts,tsx}\"",
-    "generate": "dotenv -e ../../.env -- prisma generate",
-    "reset": "dotenv -e ../../.env -- prisma migrate reset",
-    "migrate": "dotenv -e ../../.env -- prisma migrate deploy",
-    "migration:up": "dotenv -e ../../.env -- prisma migrate dev --create-only --name",
-    "migration:down": "dotenv -e ../../.env -- prisma migrate diff --from-schema-datamodel prisma/schema.prisma --to-schema-datasource prisma/schema.prisma --script > down.sql"
+    "generate": "dotenv -e ../../../.env -- prisma generate",
+    "reset": "dotenv -e ../../../.env -- prisma migrate reset",
+    "migrate": "dotenv -e ../../../.env -- prisma migrate deploy",
+    "migration:up": "dotenv -e ../../../.env -- prisma migrate dev --create-only --name",
+    "migration:down": "dotenv -e ../../../.env -- prisma migrate diff --from-schema-datamodel prisma/schema.prisma --to-schema-datasource prisma/schema.prisma --script > down.sql"
   },
   "dependencies": {
     "@algar/cdc-amqp": "0.0.1",
