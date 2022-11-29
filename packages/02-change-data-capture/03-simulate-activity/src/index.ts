@@ -1,4 +1,4 @@
-import { PrismaClient } from '@algar/cdc-db'
+import { PrismaClient } from '@algar/theia-db'
 
 const prismaClient = new PrismaClient({
   // log: ['query', 'info', 'warn', 'error'],

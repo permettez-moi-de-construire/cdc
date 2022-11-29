@@ -1,4 +1,5 @@
 module.exports = {
+  "root": true,
   "ignorePatterns": ['.eslintrc.js', '.prettierrc.js'],
   "extends": [
     "plugin:@typescript-eslint/recommended",

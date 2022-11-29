@@ -1,56 +1,36 @@
 {
-  "name": "@algar/cdc",
-  "private": "true",
+  "name": "@algar/theia",
   "version": "0.0.1",
   "packageManager": "yarn@3.2.0",
   "workspaces": {
     "packages": [
       "packages/*",
       "packages/01-datasources/*",
-      "packages/02-capture/*"
-    ],
-    "nohoist": [
-      "**/.prisma/**",
-      "**/.prisma",
-      "**/@prisma/**",
-      "**/@prisma",
-      "**/prisma/**",
-      "**/prisma"
+      "packages/02-change-data-capture/*"
     ]
   },
+  "installConfig": {
+    "hoistingLimits": "workspaces"
+  },
   "scripts": {
-    "dev:cdc": "yarn workspace @algar/cdc-cdc dev",
-    "dev:webhooks": "yarn workspace @algar/cdc-webhooks dev",
-    "dev:activity": "yarn workspace @algar/cdc-activity dev",
-    "dev:receiver": "yarn workspace @algar/cdc-receiver dev",
-    "generate:db": "yarn workspace @algar/cdc-db migrate",
-    "migrate:db": "yarn workspace @algar/cdc-db migrate",
-    "reset:db": "yarn workspace @algar/cdc-db reset",
-    "generate:webhooks": "yarn workspace @algar/cdc-webhooks migrate",
-    "migrate:webhooks": "yarn workspace @algar/cdc-webhooks migrate",
-    "reset:webhooks": "yarn workspace @algar/cdc-webhooks reset",
-    "prepare:dbq": "yarn workspace @algar/cdc-db dbq:prepare",
-    "teardown:dbq": "yarn workspace @algar/cdc-db dbq:teardown",
-    "prepare:amqp": "yarn workspace @algar/cdc-amqp amqp:prepare",
-    "teardown:amqp": "yarn workspace @algar/cdc-amqp amqp:teardown"
+    "lint": "yarn workspaces foreach run lint",
+    "dev:cdc-hatch": "yarn workspace @algar/cdc-hatch dev",
+    "dev:cdc-webhooks": "yarn workspace @algar/cdc-webhooks dev",
+    "dev:cdc-activity": "yarn workspace @algar/cdc-activity dev",
+    "dev:cdc-receiver": "yarn workspace @algar/cdc-receiver dev",
+    "dev:ds-receiver": "yarn workspace @algar/ds-receiver dev",
+    "generate:db": "yarn workspace @algar/theia-db generate",
+    "migrate:db": "yarn workspace @algar/theia-db migrate",
+    "reset:db": "yarn workspace @algar/theia-db reset",
+    "generate:cdc-webhooks": "yarn workspace @algar/cdc-webhooks generate",
+    "migrate:cdc-webhooks": "yarn workspace @algar/cdc-webhooks migrate",
+    "reset:cdc-webhooks": "yarn workspace @algar/cdc-webhooks reset",
+    "prepare:dbq": "yarn workspace @algar/theia-db dbq:prepare",
+    "teardown:dbq": "yarn workspace @algar/theia-db dbq:teardown",
+    "prepare:cdc-amqp": "yarn workspace @algar/cdc-amqp amqp:prepare",
+    "teardown:cdc-amqp": "yarn workspace @algar/cdc-amqp amqp:teardown"
   },
   "repository": "git@github.com:permettez-moi-de-construire/cdc.git",
   "author": "Cyril CHAPON <cyril@permettezmoideconstruire.fr>",
-  "license": "MIT",
-  "devDependencies": {
-    "@types/node": "^18.11.9",
-    "@typescript-eslint/eslint-plugin": "^5.44.0",
-    "@typescript-eslint/parser": "^5.44.0",
-    "dotenv-cli": "^6.0.0",
-    "eslint": "^8.28.0",
-    "eslint-config-prettier": "^8.5.0",
-    "eslint-plugin-import": "^2.26.0",
-    "eslint-plugin-prettier": "^4.2.1",
-    "nodemon": "^2.0.20",
-    "prettier": "^2.7.1",
-    "typescript": "^4.9.3"
-  },
-  "dependencies": {
-    "ts-node": "^10.9.1"
-  }
+  "license": "MIT"
 }

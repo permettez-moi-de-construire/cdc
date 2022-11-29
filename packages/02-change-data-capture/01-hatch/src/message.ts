@@ -79,6 +79,7 @@ const serializeUpdate = (msg: Wal2Json.Change) => {
 }
 
 const serializeDelete = (msg: Wal2Json.Change) => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const oldkeys = (msg as any).oldkeys as {
     keynames: string[]
     keytypes: string[]

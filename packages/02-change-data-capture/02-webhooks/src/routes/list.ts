@@ -22,7 +22,7 @@ type ListRes = z.infer<typeof listResponseSchema>
 const listHandler = (prismaClient: PrismaClient) =>
   createEndpoint({
     res: listResponseSchema,
-  })(async (req) => {
+  })(async () => {
     const webhooks = await prismaClient.webhook.findMany()
 
     return {

@@ -1,0 +1,30 @@
+{
+  "name": "@algar/cdc-activity",
+  "version": "0.0.1",
+  "main": "index.ts",
+  "license": "MIT",
+  "scripts": {
+    "dev": "dotenv -e ../../../.env -- ts-node src/index",
+    "lint": "eslint src",
+    "fix": "eslint src --fix",
+    "format": "prettier --write \"src/**/*.{ts,tsx}\""
+  },
+  "dependencies": {
+    "@algar/theia-db": "0.0.1",
+    "envalid": "^7.3.1",
+    "ts-node": "^10.9.1"
+  },
+  "devDependencies": {
+    "@types/node": "^18.11.9",
+    "@typescript-eslint/eslint-plugin": "^5.45.0",
+    "@typescript-eslint/parser": "^5.45.0",
+    "dotenv-cli": "^6.0.0",
+    "eslint": "^8.28.0",
+    "eslint-config-prettier": "^8.5.0",
+    "eslint-plugin-import": "^2.26.0",
+    "eslint-plugin-prettier": "^4.2.1",
+    "nodemon": "^2.0.20",
+    "prettier": "^2.8.0",
+    "typescript": "^4.9.3"
+  }
+}
