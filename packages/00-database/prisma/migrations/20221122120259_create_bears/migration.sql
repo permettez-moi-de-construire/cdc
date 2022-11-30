@@ -10,3 +10,6 @@ CREATE TABLE "bears" (
 
 -- CreateIndex
 CREATE UNIQUE INDEX "bears_id_key" ON "bears"("id");
+
+-- ReplicaIdentity
+ALTER TABLE "bears" REPLICA IDENTITY FULL;

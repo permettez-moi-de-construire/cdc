@@ -1,105 +1,196 @@
-import { Wal2Json } from 'pg-logical-replication'
 import { parse as parseDate } from 'date-fns'
+import {
+  Wal2JsonColumn,
+  Wal2JsonDeleteMessageV2,
+  Wal2JsonInsertMessageV2,
+  Wal2JsonMessageV2,
+  Wal2JsonTruncateMessageV2,
+  Wal2JsonUpdateMessageV2,
+} from './repl-log-service'
 
-const serializeChange = (
-  msg: Wal2Json.Change,
-  messageId: string,
-  timestamp: string,
+type _Wal2JsonBaseObjectV2 = {
+  eventId: string
+  occuredAt: Date
+  table: string
+}
+
+type Wal2JsonInsertObjectV2 = _Wal2JsonBaseObjectV2 & {
+  operation: 'insert'
+  key: Record<string, unknown>
+  new: Record<string, unknown>
+  old: null
+  changes: Record<string, unknown>
+}
+
+type Wal2JsonUpdateObjectV2 = _Wal2JsonBaseObjectV2 & {
+  operation: 'update'
+  key: Record<string, unknown>
+  new: Record<string, unknown>
+  old: Record<string, unknown>
+  changes: Record<string, unknown>
+}
+
+type Wal2JsonDeleteObjectV2 = _Wal2JsonBaseObjectV2 & {
+  operation: 'delete'
+  key: Record<string, unknown>
+  new: null
+  old: Record<string, unknown>
+  changes: null
+}
+
+type Wal2JsonTruncateObjectV2 = _Wal2JsonBaseObjectV2 & {
+  operation: 'truncate'
+  key: null
+  new: null
+  old: null
+  changes: null
+}
+
+export type Wal2JsonObjectV2 =
+  | Wal2JsonInsertObjectV2
+  | Wal2JsonUpdateObjectV2
+  | Wal2JsonDeleteObjectV2
+  | Wal2JsonTruncateObjectV2
+
+const objectifyMessageV2 = (
+  msg: Wal2JsonMessageV2,
+  id: string,
+): Wal2JsonObjectV2 => {
+  switch (msg.action) {
+    case 'I':
+      return objectifyInsertMessageV2(msg, id)
+    case 'U':
+      return objectifyUpdateMessageV2(msg, id)
+    case 'D':
+      return objectifyDeleteMessageV2(msg, id)
+    case 'T':
+      return objectifyTruncateMessageV2(msg, id)
+  }
+}
+
+const objectifyInsertMessageV2 = (
+  msg: Wal2JsonInsertMessageV2,
+  id: string,
+): Wal2JsonInsertObjectV2 => {
+  const columns = msg.columns.reduce(columnsToObject, {}) ?? null
+  const pk = objectifyKey(msg.pk, columns)
+
+  return {
+    eventId: id,
+    table: msg.table,
+    occuredAt: serializeTimestamp(msg.timestamp),
+    operation: actionToOperation[msg.action],
+    key: pk,
+    new: columns,
+    old: null,
+    changes: columns,
+  }
+}
+
+const objectifyUpdateMessageV2 = (
+  msg: Wal2JsonUpdateMessageV2,
+  id: string,
+): Wal2JsonUpdateObjectV2 => {
+  const columns = msg.columns.reduce(columnsToObject, {}) ?? null
+  const identity = msg.identity.reduce(columnsToObject, {}) ?? null
+  const pk = objectifyKey(msg.pk, columns)
+  const changes = objectifyChanges(msg.identity, msg.columns)
+
+  return {
+    eventId: id,
+    table: msg.table,
+    occuredAt: serializeTimestamp(msg.timestamp),
+    operation: actionToOperation[msg.action],
+    key: pk,
+    new: columns,
+    old: identity,
+    changes,
+  }
+}
+
+const objectifyDeleteMessageV2 = (
+  msg: Wal2JsonDeleteMessageV2,
+  id: string,
+): Wal2JsonDeleteObjectV2 => {
+  const identity = msg.identity.reduce(columnsToObject, {}) ?? null
+  const pk = objectifyKey(msg.pk, identity)
+
+  return {
+    eventId: id,
+    table: msg.table,
+    occuredAt: serializeTimestamp(msg.timestamp),
+    operation: actionToOperation[msg.action],
+    key: pk,
+    new: null,
+    old: identity,
+    changes: null,
+  }
+}
+
+const objectifyTruncateMessageV2 = (
+  msg: Wal2JsonTruncateMessageV2,
+  id: string,
+): Wal2JsonTruncateObjectV2 => {
+  return {
+    eventId: id,
+    table: msg.table,
+    occuredAt: serializeTimestamp(msg.timestamp),
+    operation: actionToOperation[msg.action],
+    key: null,
+    new: null,
+    old: null,
+    changes: null,
+  }
+}
+
+const actionToOperation = {
+  I: 'insert',
+  U: 'update',
+  D: 'delete',
+  T: 'truncate',
+  B: 'begin',
+  C: 'commit',
+} as const
+
+const objectifyKey = (
+  rawPk: Omit<Wal2JsonColumn, 'value'>[],
+  refColumns: Record<string, unknown>,
 ) => {
+  const key = rawPk.map(({ name }) => name)
+  const pk = Object.fromEntries(
+    Object.entries(refColumns).filter(([k]) => key.includes(k)),
+  )
+  return pk
+}
+
+const objectifyChanges = (
+  identityColumns: Wal2JsonColumn[],
+  columns: Wal2JsonColumn[],
+) => {
+  const changesColumns = columns.filter(
+    ({ name: k1, value: v1 }) =>
+      identityColumns.find(({ name: k2 }) => k1 === k2)?.value !== v1,
+  )
+  const changes = changesColumns.reduce(columnsToObject, {})
+  return changes
+}
+
+const columnsToObject = (
+  acc: Record<string, unknown>,
+  column: Wal2JsonColumn,
+) => ({
+  ...acc,
+  [column.name]: serializeCol(column),
+})
+
+const serializeTimestamp = (timestamp: string) => {
   let occuredAt = parseLogDateWithTz(timestamp, 6)
   if (!isFinite(+occuredAt)) {
     console.warn(`Error parsing timestamp ${timestamp}. Defaulting to now().`)
     occuredAt = new Date(Date.now())
   }
 
-  switch (msg.kind) {
-    case 'insert':
-      return {
-        eventId: messageId,
-        occuredAt,
-        ...serializeInsert(msg),
-      }
-    case 'update':
-      return {
-        eventId: messageId,
-        occuredAt,
-        ...serializeUpdate(msg),
-      }
-    case 'delete':
-      return {
-        eventId: messageId,
-        occuredAt,
-        ...serializeDelete(msg),
-      }
-    default:
-      throw new TypeError(`Unsupported operation ${msg.kind}`)
-  }
-}
-
-const serializeInsert = (msg: Wal2Json.Change) => {
-  const data = msg.columnnames.reduce(
-    (acc, k, i) => ({
-      ...acc,
-      [k]: serializeCol(msg.columntypes[i], msg.columnvalues[i]),
-    }),
-    {},
-  )
-
-  return {
-    table: msg.table,
-    operation: msg.kind,
-    key: Object.fromEntries(
-      Object.entries(data).filter(
-        ([k]) => msg.pk?.pknames.includes(k) ?? false,
-      ),
-    ),
-    new: data,
-  }
-}
-
-const serializeUpdate = (msg: Wal2Json.Change) => {
-  const data = msg.columnnames.reduce(
-    (acc, k, i) => ({
-      ...acc,
-      [k]: serializeCol(msg.columntypes[i], msg.columnvalues[i]),
-    }),
-    {},
-  )
-
-  return {
-    table: msg.table,
-    operation: msg.kind,
-    key: Object.fromEntries(
-      Object.entries(data).filter(
-        ([k]) => msg.pk?.pknames.includes(k) ?? false,
-      ),
-    ),
-    new: data,
-  }
-}
-
-const serializeDelete = (msg: Wal2Json.Change) => {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const oldkeys = (msg as any).oldkeys as {
-    keynames: string[]
-    keytypes: string[]
-    keyvalues: string[]
-  }
-
-  const key = oldkeys.keynames.reduce(
-    (acc, k, i) => ({
-      ...acc,
-      [k]: serializeCol(oldkeys.keytypes[i], oldkeys.keyvalues[i]),
-    }),
-    {},
-  )
-
-  return {
-    table: msg.table,
-    operation: msg.kind,
-    key: key,
-    new: key,
-  }
+  return occuredAt
 }
 
 const TIMESTAMP_REGEX =
@@ -107,19 +198,19 @@ const TIMESTAMP_REGEX =
 const TIMESTAMPTZ_REGEX = /^timestamptz(?:\((?<fractions>\d+)\))?$/
 const TIMESTAMPTZ_FULL_REGEX =
   /^timestamp(?:\((?<fractions>\d+)\))?(?: with time zone)$/
-const serializeCol = (type: string, value: unknown) => {
-  const timestampMatch = type.match(TIMESTAMP_REGEX)
+const serializeCol = (column: Wal2JsonColumn) => {
+  const timestampMatch = column.type.match(TIMESTAMP_REGEX)
   if (timestampMatch != null) {
     const fractions =
       timestampMatch.groups?.fractions != null
         ? parseInt(timestampMatch.groups?.fractions)
         : 0
 
-    return parseLogSimpleDate(value as string, fractions)
+    return parseLogSimpleDate(column.value, fractions)
   }
 
-  const timestamptzSimpleMatch = type.match(TIMESTAMPTZ_REGEX)
-  const timestamptzFullMatch = type.match(TIMESTAMPTZ_FULL_REGEX)
+  const timestamptzSimpleMatch = column.type.match(TIMESTAMPTZ_REGEX)
+  const timestamptzFullMatch = column.type.match(TIMESTAMPTZ_FULL_REGEX)
   const timestamptzMatch = [timestamptzSimpleMatch, timestamptzFullMatch].find(
     (m) => m != null,
   )
@@ -129,10 +220,10 @@ const serializeCol = (type: string, value: unknown) => {
         ? parseInt(timestamptzMatch.groups?.fractions)
         : 0
 
-    return parseLogDateWithTz(value as string, fractions)
+    return parseLogDateWithTz(column.value, fractions)
   }
 
-  return value
+  return column.value
 }
 
 const parseLogDateWithTz = (d: string, fractions = 0) =>
@@ -145,10 +236,4 @@ const parseLogSimpleDate = (d: string, fractions = 0) =>
     new Date(),
   )
 
-export {
-  parseLogDateWithTz,
-  serializeChange,
-  serializeInsert,
-  serializeUpdate,
-  serializeDelete,
-}
+export { objectifyMessageV2 }

@@ -44,7 +44,7 @@ const go = async () => {
     console.log('Waiting...')
     await waitFor(1000)
 
-    console.log('Updating both in transaction')
+    console.log('Updating both in failed transaction')
     try {
       await prismaClient.$transaction(async (tx) => {
         await tx.bear.update({
@@ -72,6 +72,27 @@ const go = async () => {
         throw err
       }
     }
+
+    console.log('Updating both in transaction')
+    await prismaClient.$transaction(async (tx) => {
+      await tx.bear.update({
+        data: {
+          nickName: 'Balou',
+        },
+        where: {
+          id: baloo.id,
+        },
+      })
+
+      await tx.bear.update({
+        data: {
+          nickName: 'Winny',
+        },
+        where: {
+          id: winnie.id,
+        },
+      })
+    })
 
     console.log('Waiting...')
     await waitFor(1000)
