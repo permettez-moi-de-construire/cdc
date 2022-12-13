@@ -1,4 +1,4 @@
-import { PrismaClient } from '@prisma/client'
+import { PrismaClient } from '@algar/theia-db'
 import { z } from 'zod'
 import { createEndpoint } from '../util/validated-handler'
 

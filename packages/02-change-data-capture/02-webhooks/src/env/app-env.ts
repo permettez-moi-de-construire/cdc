@@ -20,22 +20,24 @@ type CleanedEnv<T> = T & envalid.CleanedEnvAccessors
 interface AppEnv {
   NODE_ENV: KnownNodeEnv
   WEBHOOKS_PORT: number
-  WEBHOOKS_DATABASE_URL: string
   AMQP_URL: string
   AMQP_CONSUME_QUEUE: string
   AMQP_PUBLISH_EXCHANGE: string
   AMQP_ROUTING_KEY: string
+  DATABASE_URL: string
+  DATABASE_OPERATIONAL_SCHEMA: string
   LOG_LEVEL: LogLevel
 }
 
 const appEnvValidators = {
   NODE_ENV: envalid.str({ choices: knownNodeEnv }),
   WEBHOOKS_PORT: envalid.port(),
-  WEBHOOKS_DATABASE_URL: envalid.url(),
   AMQP_URL: envalid.url(),
   AMQP_CONSUME_QUEUE: envalid.str(),
   AMQP_PUBLISH_EXCHANGE: envalid.str(),
   AMQP_ROUTING_KEY: envalid.str(),
+  DATABASE_URL: envalid.url(),
+  DATABASE_OPERATIONAL_SCHEMA: envalid.str(),
   LOG_LEVEL: envalid.str({ choices: logLevels }),
 }
 

@@ -3,7 +3,7 @@ import winston, { LeveledLogMethod } from 'winston'
 import type { ConsumeMessageFields, MessageProperties } from 'amqplib'
 import { AmqpQueue } from '@permettezmoideconstruire/amqp-connector'
 import chalk from 'chalk'
-import { Webhook } from '@prisma/client'
+import { Webhook } from '@algar/theia-db'
 
 const logger = winston.createLogger({
   level: appEnv.LOG_LEVEL,

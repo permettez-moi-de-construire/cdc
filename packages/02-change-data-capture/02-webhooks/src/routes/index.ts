@@ -1,6 +1,6 @@
 import express from 'express'
 import { subscribeHandler } from './subscribe'
-import { PrismaClient } from '@prisma/client'
+import { PrismaClient } from '@algar/theia-db'
 import Amqp, { AmqpExchange } from '@permettezmoideconstruire/amqp-connector'
 import { unsubscribeHandler } from './unsubscribe'
 import { listHandler } from './list'

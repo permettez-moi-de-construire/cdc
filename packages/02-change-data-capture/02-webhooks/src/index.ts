@@ -1,7 +1,7 @@
 import chalk from 'chalk'
 import { amqpClient, amqpQueue, amqpExchange } from '@algar/cdc-amqp'
 import { appEnv } from './env/app-env'
-import { PrismaClient } from '@prisma/client'
+import { PrismaClient } from '@algar/theia-db'
 import express from 'express'
 import http from 'http'
 
@@ -39,6 +39,7 @@ const go = async () => {
     // Consume for each subscribed webhook
     const webhooks = await prismaClient.webhook.findMany()
     for (const webhook of webhooks) {
+      // TODO: recreate queue ?
       if (webhook.queue == null) {
         await prismaClient.webhook.delete({ where: { id: webhook.id } })
         continue

@@ -7,8 +7,9 @@ type CleanedEnv<T> = T & envalid.CleanedEnvAccessors
 
 interface AppEnv {
   NODE_ENV: KnownNodeEnv
-  DATABASE_REPL_SLOT_NAME: string
-  DATABASE_REPL_PUB_NAME: string
+  DATABASE_REPL_PGOUTPUT_SLOT_NAME: string
+  DATABASE_REPL_WAL2JSON_SLOT_NAME: string
+  DATABASE_REPL_PGOUTPUT_PUB_NAME: string
   AMQP_URL: string
   AMQP_PUBLISH_EXCHANGE: string
   AMQP_ROUTING_KEY: string
@@ -17,8 +18,9 @@ interface AppEnv {
 
 const appEnvValidators = {
   NODE_ENV: envalid.str({ choices: knownNodeEnv }),
-  DATABASE_REPL_SLOT_NAME: envalid.str(),
-  DATABASE_REPL_PUB_NAME: envalid.str(),
+  DATABASE_REPL_PGOUTPUT_SLOT_NAME: envalid.str(),
+  DATABASE_REPL_WAL2JSON_SLOT_NAME: envalid.str(),
+  DATABASE_REPL_PGOUTPUT_PUB_NAME: envalid.str(),
   AMQP_URL: envalid.url(),
   AMQP_PUBLISH_EXCHANGE: envalid.str(),
   AMQP_ROUTING_KEY: envalid.str(),

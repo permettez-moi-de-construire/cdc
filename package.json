@@ -1,5 +1,6 @@
 {
   "name": "@algar/theia",
+  "private": true,
   "version": "0.0.1",
   "packageManager": "yarn@3.2.0",
   "workspaces": {
@@ -7,13 +8,17 @@
       "packages/*",
       "packages/01-datasources/*",
       "packages/02-change-data-capture/*"
+    ],
+    "nohoist": [
+      "**/.prisma/**",
+      "**/.prisma",
+      "**/@prisma/**",
+      "**/@prisma",
+      "**/prisma/**",
+      "**/prisma"
     ]
   },
-  "installConfig": {
-    "hoistingLimits": "workspaces"
-  },
   "scripts": {
-    "lint": "yarn workspaces foreach run lint",
     "dev:cdc-hatch": "yarn workspace @algar/cdc-hatch dev",
     "dev:cdc-webhooks": "yarn workspace @algar/cdc-webhooks dev",
     "dev:cdc-activity": "yarn workspace @algar/cdc-activity dev",
@@ -22,11 +27,10 @@
     "generate:db": "yarn workspace @algar/theia-db generate",
     "migrate:db": "yarn workspace @algar/theia-db migrate",
     "reset:db": "yarn workspace @algar/theia-db reset",
-    "generate:cdc-webhooks": "yarn workspace @algar/cdc-webhooks generate",
-    "migrate:cdc-webhooks": "yarn workspace @algar/cdc-webhooks migrate",
-    "reset:cdc-webhooks": "yarn workspace @algar/cdc-webhooks reset",
     "prepare:dbq": "yarn workspace @algar/theia-db dbq:prepare",
     "teardown:dbq": "yarn workspace @algar/theia-db dbq:teardown",
+    "prepare:dbq:pgo": "yarn workspace @algar/theia-db dbq:prepare:pgo",
+    "teardown:dbq:pgo": "yarn workspace @algar/theia-db dbq:teardown:pgo",
     "prepare:cdc-amqp": "yarn workspace @algar/cdc-amqp amqp:prepare",
     "teardown:cdc-amqp": "yarn workspace @algar/cdc-amqp amqp:teardown"
   },

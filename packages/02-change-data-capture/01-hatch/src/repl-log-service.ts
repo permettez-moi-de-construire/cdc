@@ -19,7 +19,16 @@ const listeningService = new LogicalReplicationService(
 
 const pgOutputPlugin = new PgoutputPlugin({
   protoVersion: 2,
-  publicationNames: [appEnv.DATABASE_REPL_PUB_NAME],
+  publicationNames: [appEnv.DATABASE_REPL_PGOUTPUT_PUB_NAME],
+  ...({
+    includeXids: true,
+    includeTimestamp: true,
+    includeSchemas: false,
+    includeTypes: true,
+    // includeLsn: true,
+    includePk: true,
+    includeTransaction: false,
+  } as any)
 })
 
 const wal2JsonV1Plugin = new Wal2JsonPlugin({

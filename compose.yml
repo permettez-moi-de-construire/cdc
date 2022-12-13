@@ -13,21 +13,21 @@ services:
     #   - /var/lib/rabbitmq
     mem_limit: 500m
     mem_reservation: 300m
-  # postgres:
-  #   image: postgres:15.1-alpine
-  #   ports:
-  #     - 5438:5432
-  #   environment:
-  #     POSTGRES_USER: root
-  #     POSTGRES_PASSWORD: root
-  #   # Required config for logical replication
-  #   command: [ "postgres", "-c", "wal_level=logical" ]
-  #   volumes:
-  #     - ./_data/postgres:/var/lib/postgresql/data
-  #   # tmpfs:
-  #   #   - /var/lib/postgresql/data
-  #   mem_limit: 500m
-  #   mem_reservation: 300m
+  postgres:
+    image: postgres:15.1-alpine
+    ports:
+      - 5438:5432
+    environment:
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: root
+    # Required config for logical replication
+    command: [ "postgres", "-c", "wal_level=logical" ]
+    volumes:
+      - ./_data/postgres:/var/lib/postgresql/data
+    # tmpfs:
+    #   - /var/lib/postgresql/data
+    mem_limit: 500m
+    mem_reservation: 300m
   # postgres:
   #   image: debezium/postgres:15-alpine
   #   ports:
@@ -41,22 +41,58 @@ services:
   #   #   - /var/lib/postgresql/data
   #   mem_limit: 500m
   #   mem_reservation: 300m
-  postgres:
-    build:
-      context: ./_conf/postgres
-      dockerfile: Dockerfile
-    ports:
-      - 5438:5432
-    environment:
-      POSTGRES_USER: root
-      POSTGRES_PASSWORD: root
-    command: [ "postgres", "-c", "wal_level=logical" ]
-    volumes:
-      - ./_data/postgres:/var/lib/postgresql/data
-    # tmpfs:
-    #   - /var/lib/postgresql/data
-    mem_limit: 500m
-    mem_reservation: 300m
+  # postgres:
+  #   build:
+  #     context: ./_conf/postgres
+  #     dockerfile: Dockerfile
+  #   ports:
+  #     - 5438:5432
+  #   environment:
+  #     POSTGRES_USER: root
+  #     POSTGRES_PASSWORD: root
+  #   command: [ "postgres", "-c", "wal_level=logical" ]
+  #   volumes:
+  #     - ./_data/postgres:/var/lib/postgresql/data
+  #   # tmpfs:
+  #   #   - /var/lib/postgresql/data
+  #   mem_limit: 500m
+  #   mem_reservation: 300m
+  # postgres-hasura:
+  #   image: postgres:15.1-alpine
+  #   ports:
+  #     - 5439:5432
+  #   environment:
+  #     POSTGRES_USER: root
+  #     POSTGRES_PASSWORD: root
+  #     POSTGRES_DB: hasura
+  #   volumes:
+  #     - ./_data/postgres-hasura:/var/lib/postgresql/data
+  #   # tmpfs:
+  #   #   - /var/lib/postgresql/data
+  #   mem_limit: 500m
+  #   mem_reservation: 300m
+  # hasura:
+  #   image: hasura/graphql-engine:v2.16.0
+  #   ports:
+  #   - 8089:8080
+  #   depends_on:
+  #   - postgres
+  #   - postgres-hasura
+  #   restart: always
+  #   environment:
+  #     ## postgres database to store Hasura metadata
+  #     HASURA_GRAPHQL_METADATA_DATABASE_URL: postgres://root:root@postgres-hasura:5432/hasura
+  #     ## this env var can be used to add the above postgres database to Hasura as a data source. this can be removed/updated based on your needs
+  #     PG_DATABASE_URL: postgres://root:root@postgres:5432/pg-amqp
+  #     ## enable the console served by server
+  #     HASURA_GRAPHQL_ENABLE_CONSOLE: "true" # set to "false" to disable console
+  #     ## enable debugging mode. It is recommended to disable this in production
+  #     HASURA_GRAPHQL_DEV_MODE: "true"
+  #     HASURA_GRAPHQL_ENABLED_LOG_TYPES: startup, http-log, webhook-log, websocket-log, query-log
+  #     ## uncomment next line to run console offline (i.e load console assets from server instead of CDN)
+  #     # HASURA_GRAPHQL_CONSOLE_ASSETS_DIR: /srv/console-assets
+  #     ## uncomment next line to set an admin secret
+  #     HASURA_GRAPHQL_ADMIN_SECRET: root
   adminer:
     image: adminer
     ports:

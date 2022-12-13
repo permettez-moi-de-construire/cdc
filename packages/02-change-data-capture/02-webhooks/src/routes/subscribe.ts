@@ -1,6 +1,6 @@
 import { Amqp, AmqpExchange } from '@permettezmoideconstruire/amqp-connector'
 import chalk from 'chalk'
-import { PrismaClient } from '@prisma/client'
+import { PrismaClient } from '@algar/theia-db'
 import { z } from 'zod'
 import { createEndpoint } from '../util/validated-handler'
 import { logDetailledSubscribe, logger } from '../log'

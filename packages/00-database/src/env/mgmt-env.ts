@@ -7,14 +7,18 @@ type CleanedEnv<T> = T & envalid.CleanedEnvAccessors
 
 interface MgmtEnv {
   NODE_ENV: KnownNodeEnv
-  DATABASE_REPL_SLOT_NAME: string
-  DATABASE_REPL_PUB_NAME: string
+  DATABASE_REPL_WAL2JSON_SLOT_NAME: string
+  DATABASE_REPL_PGOUTPUT_SLOT_NAME: string
+  DATABASE_REPL_PGOUTPUT_PUB_NAME: string
+  DATABASE_OPERATIONAL_SCHEMA: string
 }
 
 const mgmtEnvValidators = {
   NODE_ENV: envalid.str({ choices: knownNodeEnv }),
-  DATABASE_REPL_SLOT_NAME: envalid.str(),
-  DATABASE_REPL_PUB_NAME: envalid.str(),
+  DATABASE_REPL_WAL2JSON_SLOT_NAME: envalid.str(),
+  DATABASE_REPL_PGOUTPUT_SLOT_NAME: envalid.str(),
+  DATABASE_REPL_PGOUTPUT_PUB_NAME: envalid.str(),
+  DATABASE_OPERATIONAL_SCHEMA: envalid.str(),
 }
 
 const getMgmtEnv = (env: NodeJS.ProcessEnv = process.env) => {

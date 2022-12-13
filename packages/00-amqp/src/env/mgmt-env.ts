@@ -13,6 +13,7 @@ interface MgmtEnv {
   AMQP_PUBLISH_EXCHANGE: string
   AMQP_CONSUME_QUEUE: string
   AMQP_ROUTING_KEY: string
+  DATABASE_OPERATIONAL_SCHEMA: string
 }
 
 const mgmtEnvValidators = {
@@ -23,6 +24,7 @@ const mgmtEnvValidators = {
   AMQP_PUBLISH_EXCHANGE: envalid.str(),
   AMQP_CONSUME_QUEUE: envalid.str(),
   AMQP_ROUTING_KEY: envalid.str(),
+  DATABASE_OPERATIONAL_SCHEMA: envalid.str(),
 }
 
 const getMgmtEnv = (env: NodeJS.ProcessEnv = process.env) => {

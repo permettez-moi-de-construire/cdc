@@ -3,12 +3,37 @@
 
 generator client {
   provider = "prisma-client-js"
-  previewFeatures = ["interactiveTransactions"]
+  previewFeatures = ["multiSchema"]
 }
 
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+  schemas  = ["operational", "cdc"]
+}
+
+model Webhook {
+  id            String   @id @unique @default(uuid())
+  name          String?
+  url           String
+  object        String
+  action        DatabaseAction
+  queue         String?
+  consumerTag   String?
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @default(now()) @map("updated_at") @updatedAt
+
+  @@schema("cdc")
+  @@map("webhooks")
+}
+
+enum DatabaseAction {
+  insert
+  update
+  delete
+
+  @@schema("cdc")
+  @@map("database_actions")
 }
 
 model Bear {
@@ -17,5 +42,6 @@ model Bear {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @default(now()) @map("updated_at") @updatedAt
 
+  @@schema("operational")
   @@map("bears")
 }

@@ -1,35 +1,40 @@
 import chalk from 'chalk'
 import { amqpClient, amqpExchange } from '@algar/cdc-amqp'
-import { Wal2Json } from 'pg-logical-replication'
+import { Pgoutput, Wal2Json } from 'pg-logical-replication'
 import { appEnv } from './env/app-env'
 import { v4 as uuid } from 'uuid'
+import { isSupportedPgoMessage, pgoMessageToCDCMessage } from './pgoutput-message'
 
 import {
   listeningService,
+  pgOutputPlugin,
   Wal2JsonMessageV2,
   wal2JsonPlugin,
 } from './repl-log-service'
-import { objectifyMessageV2 } from './message'
 
 const go = async () => {
   try {
     await amqpClient.connect(appEnv.AMQP_URL)
 
-    listeningService.on('data', async (lsn: string, msg: Wal2Json.Output) => {
+    listeningService.on('data', async (lsn: string, msg: Pgoutput.Message) => {
+      if (!isSupportedPgoMessage(msg)) {
+        console.debug(`Ignoring unsupported message type ${msg.tag}`)
+        return
+      }
+
+      // console.log(msg)
       try {
         const eventId = uuid()
-        const messageObject = objectifyMessageV2(
-          msg as unknown as Wal2JsonMessageV2,
-          eventId,
-        )
-        const messageType = `${messageObject.table}.${messageObject.operation}`
+        const cdcMessage = pgoMessageToCDCMessage(msg, eventId)
+
+        const messageType = `${cdcMessage.schema}.${cdcMessage.table}.${cdcMessage.operation}`
         const key = `${appEnv.AMQP_ROUTING_KEY}.${messageType}`
 
-        await amqpExchange.sendJson(key, messageObject, {
+        await amqpExchange.sendJson(key, cdcMessage, {
           type: messageType,
           contentType: 'application/json',
           messageId: eventId,
-          timestamp: messageObject.occuredAt.getTime(),
+          timestamp: cdcMessage.occuredAt.getTime(),
         })
 
         console.log(chalk`Forwarded {bold ${key}} event [{blue ${lsn}}]`)
@@ -43,14 +48,51 @@ const go = async () => {
 
     listeningService.on('start', () => {
       console.log(
-        chalk`Waiting for wal2json logs on {blue ${appEnv.DATABASE_REPL_SLOT_NAME} }`,
+        chalk`Waiting for pgoutput logs on {blue ${appEnv.DATABASE_REPL_PGOUTPUT_SLOT_NAME}.${appEnv.DATABASE_REPL_PGOUTPUT_PUB_NAME} }`,
       )
     })
 
     await listeningService.subscribe(
-      wal2JsonPlugin,
-      appEnv.DATABASE_REPL_SLOT_NAME,
+      pgOutputPlugin,
+      appEnv.DATABASE_REPL_PGOUTPUT_SLOT_NAME,
     )
+
+    // listeningService.on('data', async (lsn: string, msg: Wal2Json.Output) => {
+    //   try {
+    //     const eventId = uuid()
+    //     const messageObject = objectifyMessageV2(
+    //       msg as unknown as Wal2JsonMessageV2,
+    //       eventId,
+    //     )
+    //     const messageType = `${messageObject.table}.${messageObject.operation}`
+    //     const key = `${appEnv.AMQP_ROUTING_KEY}.${messageType}`
+
+    //     await amqpExchange.sendJson(key, messageObject, {
+    //       type: messageType,
+    //       contentType: 'application/json',
+    //       messageId: eventId,
+    //       timestamp: messageObject.occuredAt.getTime(),
+    //     })
+
+    //     console.log(chalk`Forwarded {bold ${key}} event [{blue ${lsn}}]`)
+    //     console.log(chalk`=> to [{blue ${eventId}}]`)
+    //   } catch (err: unknown) {
+    //     console.error(chalk`Error forwarding event {red ${lsn}}`)
+    //     console.error(err)
+    //     console.debug(msg)
+    //   }
+    // })
+
+    // listeningService.on('start', () => {
+    //   console.log(
+    //     chalk`Waiting for wal2json logs on {blue ${appEnv.DATABASE_REPL_WAL2JSON_SLOT_NAME} }`,
+    //   )
+    // })
+
+    // await listeningService.subscribe(
+    //   wal2JsonPlugin,
+    //   appEnv.DATABASE_REPL_WAL2JSON_SLOT_NAME,
+    // )
   } finally {
     await amqpClient.disconnect().catch(console.error)
   }

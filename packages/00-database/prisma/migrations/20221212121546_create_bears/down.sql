@@ -1,13 +1,13 @@
 -- CreateEnum
-CREATE TYPE "action" AS ENUM ('insert', 'update', 'delete');
+CREATE TYPE "cdc"."database_actions" AS ENUM ('insert', 'update', 'delete');
 
 -- CreateTable
-CREATE TABLE "webhooks" (
+CREATE TABLE "cdc"."webhooks" (
     "id" TEXT NOT NULL,
     "name" TEXT,
     "url" TEXT NOT NULL,
     "object" TEXT NOT NULL,
-    "action" "action" NOT NULL,
+    "action" "cdc"."database_actions" NOT NULL,
     "queue" TEXT,
     "consumerTag" TEXT,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -17,4 +17,5 @@ CREATE TABLE "webhooks" (
 );
 
 -- CreateIndex
-CREATE UNIQUE INDEX "webhooks_id_key" ON "webhooks"("id");
+CREATE UNIQUE INDEX "webhooks_id_key" ON "cdc"."webhooks"("id" ASC);
+

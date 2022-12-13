@@ -2,7 +2,8 @@
   "extends": "../../../tsconfig.json",
   "compilerOptions": {
     "paths": {
-      "@algar/cdc-amqp": ["../../00-amqp/src/index.ts"]
+      "@algar/cdc-amqp": ["../../00-amqp/src/index.ts"],
+      "@algar/theia-db": ["../../00-database/src/index.ts"]
     }
   },
   "files": [
@@ -11,6 +12,9 @@
   "references": [
     {
       "path": "../../00-amqp"
+    },
+    {
+      "path": "../../00-database"
     }
   ],
 }

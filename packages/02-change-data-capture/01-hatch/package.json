@@ -13,6 +13,7 @@
   "dependencies": {
     "@algar/cdc-amqp": "0.0.1",
     "@permettezmoideconstruire/amqp-connector": "^2.3.3",
+    "binary-parser": "^2.2.1",
     "chalk": "^4.1.2",
     "date-fns": "^2.29.3",
     "envalid": "^7.3.1",
@@ -23,7 +24,7 @@
   "devDependencies": {
     "@types/amqplib": "^0.10.0",
     "@types/node": "^18.11.9",
-    "@types/uuid": "^8.3.4",
+    "@types/uuid": "^9.0.0",
     "@typescript-eslint/eslint-plugin": "^5.45.0",
     "@typescript-eslint/parser": "^5.45.0",
     "dotenv-cli": "^6.0.0",

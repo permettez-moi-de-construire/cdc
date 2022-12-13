@@ -3,7 +3,7 @@ import Amqp, {
   AmqpQueue,
   OnJsonMessageCallback,
 } from '@permettezmoideconstruire/amqp-connector'
-import { Webhook } from '@prisma/client'
+import { Webhook } from '@algar/theia-db'
 import type { Channel, Message, Options, Replies } from 'amqplib'
 import _shortUuid from 'short-uuid'
 import { appEnv } from './env/app-env'
@@ -25,7 +25,7 @@ const createQueue = (amqpClient: Amqp) => async (webhook: Webhook) => {
 const bindQueue =
   (amqpExchange: AmqpExchange, amqpQueue: AmqpQueue) =>
   async (object: string, action: string) => {
-    const routingKey = `${appEnv.AMQP_ROUTING_KEY}.${object}.${action}`
+    const routingKey = `${appEnv.AMQP_ROUTING_KEY}.${appEnv.DATABASE_OPERATIONAL_SCHEMA}.${object}.${action}`
     await amqpExchange.bindQueue(amqpQueue, routingKey)
 
     return routingKey
@@ -42,6 +42,7 @@ const consumeQueue =
         await callback(msg)
         await amqpQueue.ack(msg as Message)
       } catch (err: unknown) {
+        // TODO: requeue
         logger.error(
           chalk`Error handling event {red ${
             err instanceof Error ? err.message : String(err)
@@ -113,7 +114,7 @@ const unbindQueue =
       .unbindQueue(
         amqpQueue.name,
         amqpExchange.name,
-        `${appEnv.AMQP_ROUTING_KEY}.${object}.${action}`,
+        `${appEnv.AMQP_ROUTING_KEY}.${appEnv.DATABASE_OPERATIONAL_SCHEMA}.${object}.${action}`,
       )
   }
 
