@@ -4,7 +4,7 @@ import {
   CDCInsertMessage,
   CDCMessageV2,
   CDCUpdateMessage,
-} from './cdc-message'
+} from '../cdc-message'
 import { Wal2Json } from 'pg-logical-replication'
 
 type Wal2JsonColumn = {

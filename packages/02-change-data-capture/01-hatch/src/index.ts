@@ -8,9 +8,9 @@ import {
   isSupportedPgoutputMessage,
   pgoMessageToCDCMessage,
   wrapPgoMessage,
-} from './pgoutput-message'
+} from './wal/pgoutput-message'
 
-import { listeningService, pgOutputPlugin } from './repl-log-service'
+import { listeningService, pgOutputPlugin } from './wal/repl-log-service'
 
 const go = async () => {
   try {

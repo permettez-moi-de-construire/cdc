@@ -4,7 +4,7 @@ import {
   Wal2JsonPlugin,
   Wal2JsonPluginOptions,
 } from 'pg-logical-replication'
-import { appEnv } from './env/app-env'
+import { appEnv } from '../env/app-env'
 
 const listeningService = new LogicalReplicationService(
   {

@@ -4,8 +4,8 @@ import {
   CDCInsertMessage,
   CDCMessageV2,
   CDCUpdateMessage,
-} from './cdc-message'
-import { µsToDate, compileShallowChanges } from './util'
+} from '../cdc-message'
+import { µsToDate, compileShallowChanges } from '../util'
 
 export const simpleDmlMessageTags = ['insert', 'update', 'delete'] as const
 export const PgoutputMessageDmlTags = [
