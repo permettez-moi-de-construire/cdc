@@ -3,7 +3,14 @@ import { amqpClient, amqpExchange } from '@algar/cdc-amqp'
 import { Pgoutput, Wal2Json } from 'pg-logical-replication'
 import { appEnv } from './env/app-env'
 import { v4 as uuid } from 'uuid'
-import { isSupportedPgoMessage, pgoMessageToCDCMessage } from './pgoutput-message'
+import {
+  isBeginTransactionPgoMessage,
+  isCommitTransactionPgoMessage,
+  isSimpleDmlPgoMessage,
+  isSupportedPgoMessage,
+  pgoMessageToCDCMessage,
+  commitTimeToDate,
+} from './pgoutput-message'
 
 import {
   listeningService,
@@ -16,16 +23,37 @@ const go = async () => {
   try {
     await amqpClient.connect(appEnv.AMQP_URL)
 
+    let lastTxTime: Date | null
     listeningService.on('data', async (lsn: string, msg: Pgoutput.Message) => {
-      if (!isSupportedPgoMessage(msg)) {
-        console.debug(`Ignoring unsupported message type ${msg.tag}`)
+      if (isBeginTransactionPgoMessage(msg)) {
+        lastTxTime = commitTimeToDate(msg.commitTime)
         return
       }
 
-      // console.log(msg)
+      if (isCommitTransactionPgoMessage(msg)) {
+        lastTxTime = null
+        return
+      }
+
+      if (!isSimpleDmlPgoMessage(msg)) {
+        console.debug(`Ignoring non dml message type ${msg.tag}`)
+        return
+      }
+
+      if (!isSupportedPgoMessage(msg)) {
+        console.warn(`Ignoring unsupported message format ${msg.tag}`)
+        return
+      }
+
+      if (lastTxTime == null) {
+        console.warn(`Ignoring message without transaction begin ${msg.tag}`)
+        return
+      }
+
       try {
         const eventId = uuid()
-        const cdcMessage = pgoMessageToCDCMessage(msg, eventId)
+        const cdcMessage = pgoMessageToCDCMessage(msg, eventId, lastTxTime)
+        console.log(cdcMessage)
 
         const messageType = `${cdcMessage.schema}.${cdcMessage.table}.${cdcMessage.operation}`
         const key = `${appEnv.AMQP_ROUTING_KEY}.${messageType}`

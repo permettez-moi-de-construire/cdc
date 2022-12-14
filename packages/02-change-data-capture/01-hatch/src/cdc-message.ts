@@ -7,15 +7,11 @@ export type CDCBaseMessage = {
 
 export type CDCInsertMessage = CDCBaseMessage & {
   operation: 'insert'
-  key: Record<string, unknown>
   new: Record<string, unknown>
-  old: null
-  changes: Record<string, unknown>
 }
 
 export type CDCUpdateMessage = CDCBaseMessage & {
   operation: 'update'
-  key: Record<string, unknown>
   new: Record<string, unknown>
   old: Record<string, unknown>
   changes: Record<string, unknown>
@@ -23,10 +19,7 @@ export type CDCUpdateMessage = CDCBaseMessage & {
 
 export type CDCDeleteMessage = CDCBaseMessage & {
   operation: 'delete'
-  key: Record<string, unknown>
-  new: null
   old: Record<string, unknown>
-  changes: null
 }
 
 // export type CDCTruncateMessage = CDCBaseMessage & {
@@ -41,6 +34,6 @@ export type CDCMessageV2 =
   | CDCInsertMessage
   | CDCUpdateMessage
   | CDCDeleteMessage
-  // | CDCTruncateMessage
+// | CDCTruncateMessage
 
 export type CDCOperation = CDCMessageV2['operation']
