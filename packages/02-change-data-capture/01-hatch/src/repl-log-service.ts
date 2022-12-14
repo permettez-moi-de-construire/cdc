@@ -2,6 +2,7 @@ import {
   LogicalReplicationService,
   PgoutputPlugin,
   Wal2JsonPlugin,
+  Wal2JsonPluginOptions,
 } from 'pg-logical-replication'
 import { appEnv } from './env/app-env'
 
@@ -28,7 +29,7 @@ const pgOutputPlugin = new PgoutputPlugin({
     // includeLsn: true,
     includePk: true,
     includeTransaction: false,
-  } as any)
+  } as Wal2JsonPluginOptions),
 })
 
 const wal2JsonV1Plugin = new Wal2JsonPlugin({
@@ -45,7 +46,7 @@ const wal2JsonPlugin = new Wal2JsonPlugin({
   formatVersion: '2',
   includeXids: true,
   includeTimestamp: true,
-  includeSchemas: false,
+  includeSchemas: true,
   includeTypes: true,
   // includeLsn: true,
   includePk: true,
@@ -53,56 +54,4 @@ const wal2JsonPlugin = new Wal2JsonPlugin({
   // writeInChunks: true,
 })
 
-type Wal2JsonColumn = {
-  name: string
-  type: string
-  value: string
-}
-
-type _Wal2JsonBaseMessageV2 = {
-  timestamp: string
-  table: string
-}
-
-type Wal2JsonInsertMessageV2 = _Wal2JsonBaseMessageV2 & {
-  action: 'I'
-  pk: Omit<Wal2JsonColumn, 'value'>[]
-  columns: Wal2JsonColumn[]
-  identity: undefined
-}
-
-type Wal2JsonUpdateMessageV2 = _Wal2JsonBaseMessageV2 & {
-  action: 'U'
-  pk: Omit<Wal2JsonColumn, 'value'>[]
-  columns: Wal2JsonColumn[]
-  identity: Wal2JsonColumn[]
-}
-
-type Wal2JsonDeleteMessageV2 = _Wal2JsonBaseMessageV2 & {
-  action: 'D'
-  pk: Omit<Wal2JsonColumn, 'value'>[]
-  columns: undefined
-  identity: Wal2JsonColumn[]
-}
-
-type Wal2JsonTruncateMessageV2 = _Wal2JsonBaseMessageV2 & {
-  action: 'T'
-  pk: undefined
-  columns: undefined
-  identity: undefined
-}
-
-export type Wal2JsonMessageV2 =
-  | Wal2JsonInsertMessageV2
-  | Wal2JsonUpdateMessageV2
-  | Wal2JsonDeleteMessageV2
-  | Wal2JsonTruncateMessageV2
-
 export { listeningService, pgOutputPlugin, wal2JsonV1Plugin, wal2JsonPlugin }
-export type {
-  Wal2JsonColumn,
-  Wal2JsonInsertMessageV2,
-  Wal2JsonUpdateMessageV2,
-  Wal2JsonDeleteMessageV2,
-  Wal2JsonTruncateMessageV2,
-}

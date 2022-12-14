@@ -8,19 +8,22 @@ import {
 import { µsToDate, compileShallowChanges } from './util'
 
 export const simpleDmlMessageTags = ['insert', 'update', 'delete'] as const
-export const dmlPgoMessageTags = [...simpleDmlMessageTags, 'truncate'] as const
+export const PgoutputMessageDmlTags = [
+  ...simpleDmlMessageTags,
+  'truncate',
+] as const
 
-export type SimpleDmlPgoMessageTag = typeof simpleDmlMessageTags[number]
-export type DmlPgoMessageTag = typeof dmlPgoMessageTags[number]
+export type PgoutputMessageSimpleDmlTag = typeof simpleDmlMessageTags[number]
+export type PgoutputMessageDmlTag = typeof PgoutputMessageDmlTags[number]
 
-export type DmlPgoMessage =
+export type PgoutputMessageDml =
   | Pgoutput.MessageInsert
   | Pgoutput.MessageUpdate
   | Pgoutput.MessageDelete
   | Pgoutput.MessageTruncate
 
-export type SimpleDmlPgoMessage = Exclude<
-  DmlPgoMessage,
+export type SimplePgoutputMessageDml = Exclude<
+  PgoutputMessageDml,
   Pgoutput.MessageTruncate
 >
 
@@ -41,18 +44,18 @@ export const msgHasOld = (
   return msg.old != null
 }
 
-export const isDmlPgoMessage = (
+export const isDmlPgoutputMessage = (
   pgoMsg: Pgoutput.Message,
-): pgoMsg is DmlPgoMessage =>
-  dmlPgoMessageTags.includes(pgoMsg.tag as DmlPgoMessageTag)
+): pgoMsg is PgoutputMessageDml =>
+  PgoutputMessageDmlTags.includes(pgoMsg.tag as PgoutputMessageDmlTag)
 
-export const isSimpleDmlPgoMessage = (
+export const isSimpleDmlPgoutputMessage = (
   pgoMsg: Pgoutput.Message,
-): pgoMsg is SimpleDmlPgoMessage =>
-  simpleDmlMessageTags.includes(pgoMsg.tag as SimpleDmlPgoMessageTag)
+): pgoMsg is SimplePgoutputMessageDml =>
+  simpleDmlMessageTags.includes(pgoMsg.tag as PgoutputMessageSimpleDmlTag)
 
-export const isSupportedPgoMessage = (
-  pgoMsg: SimpleDmlPgoMessage,
+export const isSupportedPgoutputMessage = (
+  pgoMsg: SimplePgoutputMessageDml,
 ): pgoMsg is SupportedPgoMessage => {
   switch (pgoMsg.tag) {
     case 'insert':
@@ -139,6 +142,41 @@ export const pgoDeleteMessageToCDCDeleteMessage = (
     // Remove strange symbol key
     old: { ...pgoMsg.old },
     occuredAt: commitTime,
+  }
+}
+
+export type TransactionPgoMessage =
+  | Pgoutput.MessageBegin
+  | Pgoutput.MessageCommit
+
+export const wrapPgoMessage = (
+  listener: (
+    lsn: string,
+    commitedAt: Date,
+    log: Exclude<Pgoutput.Message, TransactionPgoMessage>,
+  ) => Promise<void> | void,
+) => {
+  let lastTxTime: Date | null
+
+  return async (lsn: string, log: unknown): Promise<void> => {
+    const msg = log as Pgoutput.Message
+
+    if (isBeginTransactionPgoMessage(msg)) {
+      lastTxTime = commitTimeToDate(msg.commitTime)
+      return
+    }
+
+    if (isCommitTransactionPgoMessage(msg)) {
+      lastTxTime = null
+      return
+    }
+
+    if (lastTxTime == null) {
+      console.warn(`Ignoring message without transaction begin ${msg.tag}`)
+      return
+    }
+
+    return await listener(lsn, lastTxTime, msg)
   }
 }
 

@@ -1,145 +1,139 @@
 import { parse as parseDate } from 'date-fns'
 import {
-  Wal2JsonColumn,
-  Wal2JsonDeleteMessageV2,
-  Wal2JsonInsertMessageV2,
-  Wal2JsonMessageV2,
-  Wal2JsonTruncateMessageV2,
-  Wal2JsonUpdateMessageV2,
-} from './repl-log-service'
+  CDCDeleteMessage,
+  CDCInsertMessage,
+  CDCMessageV2,
+  CDCUpdateMessage,
+} from './cdc-message'
+import { Wal2Json } from 'pg-logical-replication'
 
-type _Wal2JsonBaseObjectV2 = {
-  eventId: string
-  occuredAt: Date
+type Wal2JsonColumn = {
+  name: string
+  type: string
+  value: string
+}
+
+type _Wal2JsonBaseMessageV2 = Wal2Json.Change & {
+  timestamp: string
   table: string
+  schema: string
 }
 
-type Wal2JsonInsertObjectV2 = _Wal2JsonBaseObjectV2 & {
-  operation: 'insert'
-  key: Record<string, unknown>
-  new: Record<string, unknown>
-  old: null
-  changes: Record<string, unknown>
+type Wal2JsonInsertMessageV2 = _Wal2JsonBaseMessageV2 & {
+  action: 'I'
+  pk: Omit<Wal2JsonColumn, 'value'>[]
+  columns: Wal2JsonColumn[]
+  identity: undefined
 }
 
-type Wal2JsonUpdateObjectV2 = _Wal2JsonBaseObjectV2 & {
-  operation: 'update'
-  key: Record<string, unknown>
-  new: Record<string, unknown>
-  old: Record<string, unknown>
-  changes: Record<string, unknown>
+type Wal2JsonUpdateMessageV2 = _Wal2JsonBaseMessageV2 & {
+  action: 'U'
+  pk: Omit<Wal2JsonColumn, 'value'>[]
+  columns: Wal2JsonColumn[]
+  identity: Wal2JsonColumn[]
 }
 
-type Wal2JsonDeleteObjectV2 = _Wal2JsonBaseObjectV2 & {
-  operation: 'delete'
-  key: Record<string, unknown>
-  new: null
-  old: Record<string, unknown>
-  changes: null
+type Wal2JsonDeleteMessageV2 = _Wal2JsonBaseMessageV2 & {
+  action: 'D'
+  pk: Omit<Wal2JsonColumn, 'value'>[]
+  columns: undefined
+  identity: Wal2JsonColumn[]
 }
 
-type Wal2JsonTruncateObjectV2 = _Wal2JsonBaseObjectV2 & {
-  operation: 'truncate'
-  key: null
-  new: null
-  old: null
-  changes: null
+type Wal2JsonTruncateMessageV2 = _Wal2JsonBaseMessageV2 & {
+  action: 'T'
+  pk: undefined
+  columns: undefined
+  identity: undefined
 }
 
-export type Wal2JsonObjectV2 =
-  | Wal2JsonInsertObjectV2
-  | Wal2JsonUpdateObjectV2
-  | Wal2JsonDeleteObjectV2
-  | Wal2JsonTruncateObjectV2
+export type Wal2JsonMessageV2 =
+  | Wal2JsonInsertMessageV2
+  | Wal2JsonUpdateMessageV2
+  | Wal2JsonDeleteMessageV2
+  | Wal2JsonTruncateMessageV2
 
-const objectifyMessageV2 = (
-  msg: Wal2JsonMessageV2,
-  id: string,
-): Wal2JsonObjectV2 => {
-  switch (msg.action) {
-    case 'I':
-      return objectifyInsertMessageV2(msg, id)
-    case 'U':
-      return objectifyUpdateMessageV2(msg, id)
-    case 'D':
-      return objectifyDeleteMessageV2(msg, id)
-    case 'T':
-      return objectifyTruncateMessageV2(msg, id)
+export type Wal2JsonSupportedMessageV2 =
+  | Wal2JsonInsertMessageV2
+  | Wal2JsonUpdateMessageV2
+  | Wal2JsonDeleteMessageV2
+
+export const isSupportedW2jMessage = (
+  w2j: Wal2Json.Change,
+): w2j is Wal2JsonSupportedMessageV2 => {
+  switch (w2j.kind) {
+    case 'insert':
+    case 'update':
+    case 'delete':
+      return true
+    default:
+      return false
   }
 }
 
-const objectifyInsertMessageV2 = (
+export const w2jMessageToCDCMessage = (
+  msg: Wal2JsonSupportedMessageV2,
+  id: string,
+): CDCMessageV2 => {
+  switch (msg.action) {
+    case 'I':
+      return w2jInsertMessageToCDCInsertMessage(msg, id)
+    case 'U':
+      return w2jUpdateMessageToCDCUpdateMessage(msg, id)
+    case 'D':
+      return w2jDeleteMessageToCDCDeleteMessage(msg, id)
+  }
+}
+
+const w2jInsertMessageToCDCInsertMessage = (
   msg: Wal2JsonInsertMessageV2,
   id: string,
-): Wal2JsonInsertObjectV2 => {
+): CDCInsertMessage => {
   const columns = msg.columns.reduce(columnsToObject, {}) ?? null
-  const pk = objectifyKey(msg.pk, columns)
 
   return {
     eventId: id,
+    schema: msg.schema,
     table: msg.table,
     occuredAt: serializeTimestamp(msg.timestamp),
     operation: actionToOperation[msg.action],
-    key: pk,
     new: columns,
-    old: null,
-    changes: columns,
   }
 }
 
-const objectifyUpdateMessageV2 = (
+const w2jUpdateMessageToCDCUpdateMessage = (
   msg: Wal2JsonUpdateMessageV2,
   id: string,
-): Wal2JsonUpdateObjectV2 => {
+): CDCUpdateMessage => {
   const columns = msg.columns.reduce(columnsToObject, {}) ?? null
   const identity = msg.identity.reduce(columnsToObject, {}) ?? null
-  const pk = objectifyKey(msg.pk, columns)
   const changes = objectifyChanges(msg.identity, msg.columns)
 
   return {
     eventId: id,
+    schema: msg.schema,
     table: msg.table,
     occuredAt: serializeTimestamp(msg.timestamp),
     operation: actionToOperation[msg.action],
-    key: pk,
     new: columns,
     old: identity,
     changes,
   }
 }
 
-const objectifyDeleteMessageV2 = (
+const w2jDeleteMessageToCDCDeleteMessage = (
   msg: Wal2JsonDeleteMessageV2,
   id: string,
-): Wal2JsonDeleteObjectV2 => {
+): CDCDeleteMessage => {
   const identity = msg.identity.reduce(columnsToObject, {}) ?? null
-  const pk = objectifyKey(msg.pk, identity)
 
   return {
     eventId: id,
+    schema: msg.schema,
     table: msg.table,
     occuredAt: serializeTimestamp(msg.timestamp),
     operation: actionToOperation[msg.action],
-    key: pk,
-    new: null,
     old: identity,
-    changes: null,
-  }
-}
-
-const objectifyTruncateMessageV2 = (
-  msg: Wal2JsonTruncateMessageV2,
-  id: string,
-): Wal2JsonTruncateObjectV2 => {
-  return {
-    eventId: id,
-    table: msg.table,
-    occuredAt: serializeTimestamp(msg.timestamp),
-    operation: actionToOperation[msg.action],
-    key: null,
-    new: null,
-    old: null,
-    changes: null,
   }
 }
 
@@ -151,17 +145,6 @@ const actionToOperation = {
   B: 'begin',
   C: 'commit',
 } as const
-
-const objectifyKey = (
-  rawPk: Omit<Wal2JsonColumn, 'value'>[],
-  refColumns: Record<string, unknown>,
-) => {
-  const key = rawPk.map(({ name }) => name)
-  const pk = Object.fromEntries(
-    Object.entries(refColumns).filter(([k]) => key.includes(k)),
-  )
-  return pk
-}
 
 const objectifyChanges = (
   identityColumns: Wal2JsonColumn[],
@@ -235,5 +218,3 @@ const parseLogSimpleDate = (d: string, fractions = 0) =>
     `yyyy-LL-dd HH:mm:ss.${'S'.repeat(fractions)}x`,
     new Date(),
   )
-
-export { objectifyMessageV2 }
