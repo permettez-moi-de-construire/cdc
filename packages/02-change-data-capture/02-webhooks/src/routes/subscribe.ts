@@ -1,5 +1,4 @@
 import { Amqp, AmqpExchange } from '@permettezmoideconstruire/amqp-connector'
-import chalk from 'chalk'
 import { PrismaClient } from '@algar/theia-db'
 import { z } from 'zod'
 import { createEndpoint } from '../util/validated-handler'
@@ -45,7 +44,7 @@ const subscribeHandler = (
       let webhook = await tx.webhook.create({
         data: req.body,
       })
-      logger.info(chalk`Binding webhook {blue ${webhook.id}}`)
+      logger.info(`Binding webhook ${webhook.id}`)
 
       // Create an AMQP queue
       const { amqpQueue, consumerTag, routingKey } = await createConsumingQueue(

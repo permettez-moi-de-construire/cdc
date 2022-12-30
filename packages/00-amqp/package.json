@@ -7,23 +7,25 @@
     "lint": "eslint src",
     "fix": "eslint src --fix",
     "format": "prettier --write \"src/**/*.{ts,tsx}\"",
-    "amqp:prepare": "yarn _amqp:create-vhost && yarn _amqp:create-exchange && yarn _amqp:create-queue && yarn _amqp:bind-queue",
-    "amqp:teardown": "yarn _amqp:unbind-queue && yarn _amqp:drop-queue && yarn _amqp:drop-exchange && yarn _amqp:drop-vhost",
+    "amqp:prepare": "yarn _amqp:create-vhost && yarn _amqp:create-exchanges && yarn _amqp:create-queues && yarn _amqp:bind-queues",
+    "amqp:teardown": "yarn _amqp:unbind-queues && yarn _amqp:drop-queues && yarn _amqp:drop-exchanges && yarn _amqp:drop-vhost",
     "_amqp:create-vhost": "dotenv -e ../../.env -- ts-node src/_scripts/create-amqp-vhost",
     "_amqp:drop-vhost": "dotenv -e ../../.env -- ts-node src/_scripts/drop-amqp-vhost",
-    "_amqp:create-exchange": "dotenv -e ../../.env -- ts-node src/_scripts/create-amqp-exchange",
-    "_amqp:drop-exchange": "dotenv -e ../../.env -- ts-node src/_scripts/drop-amqp-exchange",
-    "_amqp:create-queue": "dotenv -e ../../.env -- ts-node src/_scripts/create-amqp-queue",
-    "_amqp:drop-queue": "dotenv -e ../../.env -- ts-node src/_scripts/drop-amqp-queue",
-    "_amqp:bind-queue": "dotenv -e ../../.env -- ts-node src/_scripts/bind-amqp-queue",
-    "_amqp:unbind-queue": "dotenv -e ../../.env -- ts-node src/_scripts/unbind-amqp-queue"
+    "_amqp:create-exchanges": "dotenv -e ../../.env -- ts-node src/_scripts/create-amqp-exchanges",
+    "_amqp:drop-exchanges": "dotenv -e ../../.env -- ts-node src/_scripts/drop-amqp-exchanges",
+    "_amqp:create-queues": "dotenv -e ../../.env -- ts-node src/_scripts/create-amqp-queues",
+    "_amqp:drop-queues": "dotenv -e ../../.env -- ts-node src/_scripts/drop-amqp-queues",
+    "_amqp:bind-queues": "dotenv -e ../../.env -- ts-node src/_scripts/bind-amqp-queues",
+    "_amqp:unbind-queues": "dotenv -e ../../.env -- ts-node src/_scripts/unbind-amqp-queues"
   },
   "dependencies": {
+    "@algar/theia-common": "0.0.1",
     "@permettezmoideconstruire/amqp-connector": "^2.3.3",
     "axios": "^1.2.0",
-    "chalk": "^4.1.2",
+    "date-fns": "^2.29.3",
     "envalid": "^7.3.1",
-    "ts-node": "^10.9.1"
+    "ts-node": "^10.9.1",
+    "zod": "^3.20.2"
   },
   "devDependencies": {
     "@types/amqplib": "^0.10.0",

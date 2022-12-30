@@ -1,5 +1,5 @@
-import chalk from 'chalk'
 import { PrismaClient } from '@prisma/client'
+import { logger } from '../log'
 
 const createWal2jsonExtension = async () => {
   const prismaClient = new PrismaClient()
@@ -8,12 +8,12 @@ const createWal2jsonExtension = async () => {
     await prismaClient.$connect()
 
     await prismaClient.$executeRaw`CREATE EXTENSION wal2json`
-    console.log(chalk`Postgres {blue wal2json} extension created`)
+    logger.info(`Postgres wal2json extension created`)
   } catch (err) {
-    console.error(chalk`Error creating postgres {red wal2json} extension`)
+    logger.error(`Error creating postgres wal2json extension`)
     throw err
   } finally {
-    prismaClient.$disconnect().catch(console.error)
+    prismaClient.$disconnect().catch(logger.error)
   }
 }
 
@@ -24,12 +24,12 @@ const dropWal2jsonExtension = async () => {
     await prismaClient.$connect()
 
     await prismaClient.$executeRaw`DROP EXTENSION wal2json`
-    console.log(chalk`Postgres {blue wal2json} dropped`)
+    logger.info(`Postgres wal2json dropped`)
   } catch (err) {
-    console.error(chalk`Error dropping postgres {red wal2json} extension`)
+    logger.error(`Error dropping postgres wal2json extension`)
     throw err
   } finally {
-    prismaClient.$disconnect().catch(console.error)
+    prismaClient.$disconnect().catch(logger.error)
   }
 }
 

@@ -1,5 +1,10 @@
-import chalk from 'chalk'
-import { amqpClient, amqpExchange } from '@algar/cdc-amqp'
+import {
+  amqpClient,
+  amqpErrorQueue,
+  amqpExchange,
+  amqpRequeueQueue,
+  amqpWaitExchange,
+} from '@algar/cdc-amqp'
 import { Pgoutput } from 'pg-logical-replication'
 import { appEnv } from './env/app-env'
 import { v4 as uuid } from 'uuid'
@@ -11,6 +16,8 @@ import {
 } from './wal/pgoutput-message'
 
 import { listeningService, pgOutputPlugin } from './wal/repl-log-service'
+import { handleError, handleRequeue } from './error'
+import { logger } from './log'
 
 const go = async () => {
   try {
@@ -21,19 +28,18 @@ const go = async () => {
       wrapPgoMessage(
         async (lsn: string, commitedAt: Date, msg: Pgoutput.Message) => {
           if (!isSimpleDmlPgoutputMessage(msg)) {
-            console.debug(`Ignoring non dml message type ${msg.tag}`)
+            logger.debug(`Ignoring non dml message type ${msg.tag}`)
             return
           }
 
           if (!isSupportedPgoutputMessage(msg)) {
-            console.warn(`Ignoring unsupported message format ${msg.tag}`)
+            logger.warn(`Ignoring unsupported message format ${msg.tag}`)
             return
           }
 
           try {
             const eventId = uuid()
             const cdcMessage = pgoMessageToCDCMessage(msg, eventId, commitedAt)
-            console.log(cdcMessage)
 
             const messageType = `${cdcMessage.schema}.${cdcMessage.table}.${cdcMessage.operation}`
             const key = `${appEnv.AMQP_ROUTING_KEY}.${messageType}`
@@ -42,33 +48,41 @@ const go = async () => {
               type: messageType,
               contentType: 'application/json',
               messageId: eventId,
-              timestamp: cdcMessage.occuredAt.getTime(),
+              timestamp: cdcMessage.occurredAt.getTime(),
             })
 
-            console.log(chalk`Forwarded {bold ${key}} event [{blue ${lsn}}]`)
-            console.log(chalk`=> to [{blue ${eventId}}]`)
+            logger.info(`Forwarded ${key} event {${lsn}}`)
+            logger.info(`=> to {${eventId}}`)
           } catch (err: unknown) {
-            console.error(chalk`Error forwarding event {red ${lsn}}`)
-            console.error(err)
-            console.debug(msg)
+            logger.error(`Error forwarding event {${lsn}}`)
+            logger.error(err)
+            logger.debug(msg)
           }
         },
       ),
     )
 
     listeningService.on('start', () => {
-      console.log(
-        chalk`Waiting for pgoutput logs on {blue ${appEnv.DATABASE_REPL_PGOUTPUT_SLOT_NAME}.${appEnv.DATABASE_REPL_PGOUTPUT_PUB_NAME} }`,
+      logger.info(
+        `Waiting for pgoutput logs on ${appEnv.DATABASE_REPL_PGOUTPUT_SLOT_NAME}.${appEnv.DATABASE_REPL_PGOUTPUT_PUB_NAME}`,
       )
     })
+
+    await handleError(
+      amqpErrorQueue,
+      amqpWaitExchange,
+      appEnv.AMQP_REQUEUE_DELAYS,
+    )
+
+    await handleRequeue(amqpClient)(amqpRequeueQueue)
 
     await listeningService.subscribe(
       pgOutputPlugin,
       appEnv.DATABASE_REPL_PGOUTPUT_SLOT_NAME,
     )
   } finally {
-    await amqpClient.disconnect().catch(console.error)
+    await amqpClient.disconnect().catch(logger.error)
   }
 }
 
-void go().catch(console.error)
+void go().catch(logger.error)

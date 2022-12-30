@@ -5,6 +5,7 @@ import {
   CDCMessageV2,
   CDCUpdateMessage,
 } from '../cdc-message'
+import { logger } from '../log'
 import { µsToDate, compileShallowChanges } from '../util'
 
 export const simpleDmlMessageTags = ['insert', 'update', 'delete'] as const
@@ -105,7 +106,7 @@ export const pgoInsertMessageToCDCInsertMessage = (
     operation: 'insert',
     // Remove strange symbol key
     new: { ...pgoMsg.new },
-    occuredAt: commitTime,
+    occurredAt: commitTime,
   }
 }
 
@@ -125,7 +126,7 @@ export const pgoUpdateMessageToCDCUpdateMessage = (
     new: { ...pgoMsg.new },
     // Remove strange symbol key
     old: { ...pgoMsg.old },
-    occuredAt: commitTime,
+    occurredAt: commitTime,
   }
 }
 
@@ -141,7 +142,7 @@ export const pgoDeleteMessageToCDCDeleteMessage = (
     operation: 'delete',
     // Remove strange symbol key
     old: { ...pgoMsg.old },
-    occuredAt: commitTime,
+    occurredAt: commitTime,
   }
 }
 
@@ -172,7 +173,7 @@ export const wrapPgoMessage = (
     }
 
     if (lastTxTime == null) {
-      console.warn(`Ignoring message without transaction begin ${msg.tag}`)
+      logger.warn(`Ignoring message without transaction begin ${msg.tag}`)
       return
     }
 

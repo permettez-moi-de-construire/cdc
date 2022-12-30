@@ -1,5 +1,5 @@
-import chalk from 'chalk'
 import { PrismaClient } from '@prisma/client'
+import { logger } from '../log'
 
 const createPublication = async (pubName: string, schema?: string) => {
   const prismaClient = new PrismaClient()
@@ -7,21 +7,19 @@ const createPublication = async (pubName: string, schema?: string) => {
   try {
     await prismaClient.$connect()
 
-    await (schema != null ? (
-      prismaClient.$executeRawUnsafe(
-        `CREATE PUBLICATION "${pubName}" FOR TABLES IN SCHEMA ${schema}`
-      )
-    ) : (
-      prismaClient.$executeRawUnsafe(
-        `CREATE PUBLICATION ${pubName} FOR ALL TABLES`,
-      )
-    ))
-    console.log(chalk`Postgres publication {blue ${pubName}} created`)
+    await (schema != null
+      ? prismaClient.$executeRawUnsafe(
+          `CREATE PUBLICATION "${pubName}" FOR TABLES IN SCHEMA ${schema}`,
+        )
+      : prismaClient.$executeRawUnsafe(
+          `CREATE PUBLICATION ${pubName} FOR ALL TABLES`,
+        ))
+    logger.info(`Postgres publication ${pubName} created`)
   } catch (err) {
-    console.error(chalk`Error creating postgres publication {red ${pubName}}`)
+    logger.error(`Error creating postgres publication ${pubName}`)
     throw err
   } finally {
-    prismaClient.$disconnect().catch(console.error)
+    prismaClient.$disconnect().catch(logger.error)
   }
 }
 
@@ -31,15 +29,13 @@ const dropPublication = async (pubName: string) => {
   try {
     await prismaClient.$connect()
 
-    await prismaClient.$executeRawUnsafe(
-      `DROP PUBLICATION ${pubName}`
-    )
-    console.log(chalk`Postgres publication {blue ${pubName}} dropped`)
+    await prismaClient.$executeRawUnsafe(`DROP PUBLICATION ${pubName}`)
+    logger.info(`Postgres publication ${pubName} dropped`)
   } catch (err) {
-    console.error(chalk`Error dropping postgres publication {red ${pubName}}`)
+    logger.error(`Error dropping postgres publication ${pubName}`)
     throw err
   } finally {
-    prismaClient.$disconnect().catch(console.error)
+    prismaClient.$disconnect().catch(logger.error)
   }
 }
 

@@ -1,5 +1,4 @@
 import { Amqp, AmqpExchange } from '@permettezmoideconstruire/amqp-connector'
-import chalk from 'chalk'
 import { PrismaClient } from '@algar/theia-db'
 import { z } from 'zod'
 import { createEndpoint } from '../util/validated-handler'
@@ -43,7 +42,7 @@ const unsubscribeHandler = (
           id: req.params.id,
         },
       })
-      logger.info(chalk`Unbinding webhook {blue ${webhook.id}}`)
+      logger.info(`Unbinding webhook ${webhook.id}`)
 
       await cancelConsumingQueue(amqpClient)(publishExchange)(webhook)
 

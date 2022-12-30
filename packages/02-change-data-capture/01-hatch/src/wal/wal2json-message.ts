@@ -6,6 +6,7 @@ import {
   CDCUpdateMessage,
 } from '../cdc-message'
 import { Wal2Json } from 'pg-logical-replication'
+import { logger } from '../log'
 
 type Wal2JsonColumn = {
   name: string
@@ -95,7 +96,7 @@ const w2jInsertMessageToCDCInsertMessage = (
     eventId: id,
     schema: msg.schema,
     table: msg.table,
-    occuredAt: serializeTimestamp(msg.timestamp),
+    occurredAt: serializeTimestamp(msg.timestamp),
     operation: actionToOperation[msg.action],
     new: columns,
   }
@@ -113,7 +114,7 @@ const w2jUpdateMessageToCDCUpdateMessage = (
     eventId: id,
     schema: msg.schema,
     table: msg.table,
-    occuredAt: serializeTimestamp(msg.timestamp),
+    occurredAt: serializeTimestamp(msg.timestamp),
     operation: actionToOperation[msg.action],
     new: columns,
     old: identity,
@@ -131,7 +132,7 @@ const w2jDeleteMessageToCDCDeleteMessage = (
     eventId: id,
     schema: msg.schema,
     table: msg.table,
-    occuredAt: serializeTimestamp(msg.timestamp),
+    occurredAt: serializeTimestamp(msg.timestamp),
     operation: actionToOperation[msg.action],
     old: identity,
   }
@@ -167,13 +168,13 @@ const columnsToObject = (
 })
 
 const serializeTimestamp = (timestamp: string) => {
-  let occuredAt = parseLogDateWithTz(timestamp, 6)
-  if (!isFinite(+occuredAt)) {
-    console.warn(`Error parsing timestamp ${timestamp}. Defaulting to now().`)
-    occuredAt = new Date(Date.now())
+  let occurredAt = parseLogDateWithTz(timestamp, 6)
+  if (!isFinite(+occurredAt)) {
+    logger.warn(`Error parsing timestamp ${timestamp}. Defaulting to now().`)
+    occurredAt = new Date(Date.now())
   }
 
-  return occuredAt
+  return occurredAt
 }
 
 const TIMESTAMP_REGEX =

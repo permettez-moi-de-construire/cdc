@@ -5,6 +5,9 @@
       "@algar/theia-db": ["../../00-database/src/index.ts"]
     }
   },
+  "include": [
+    "src/**/*.ts"
+  ],
   "files": [
     "src/index.ts"
   ],

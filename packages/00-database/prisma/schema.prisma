@@ -2,29 +2,31 @@
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
   previewFeatures = ["multiSchema"]
 }
 
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+  // schemas  = ["operational", "cdc", "pipeline_raw", "pipeline_prepared"]
   schemas  = ["operational", "cdc"]
 }
 
+// ---- Capture Data Change
 model Webhook {
-  id            String   @id @unique @default(uuid())
-  name          String?
-  url           String
-  object        String
-  action        DatabaseAction
-  queue         String?
-  consumerTag   String?
-  createdAt     DateTime @default(now()) @map("created_at")
-  updatedAt     DateTime @default(now()) @map("updated_at") @updatedAt
+  id          String         @id @unique @default(uuid())
+  name        String?
+  url         String
+  object      String
+  action      DatabaseAction
+  queue       String?
+  consumerTag String?
+  createdAt   DateTime       @default(now()) @map("created_at")
+  updatedAt   DateTime       @default(now()) @updatedAt @map("updated_at")
 
-  @@schema("cdc")
   @@map("webhooks")
+  @@schema("cdc")
 }
 
 enum DatabaseAction {
@@ -32,16 +34,56 @@ enum DatabaseAction {
   update
   delete
 
-  @@schema("cdc")
   @@map("database_actions")
+  @@schema("cdc")
 }
 
+// ---- Data Sources (raw)
+// model DataChangeEventHubspot {
+//   id           String                      @id @unique
+//   objectType   DataChangeObjectTypeHubspot
+//   objectId     Int
+//   eventType    DataChangeEventTypeHubspot
+//   propertyName String?
+//   occurredAt   DateTime                    @default(now()) @map("occurred_at")
+
+//   @@map("data_change_event_hubspot")
+//   @@schema("pipeline_raw")
+// }
+
+// enum DataChangeObjectTypeHubspot {
+//   contact
+//   deal
+
+//   @@map("data_change_object_type_hubspot")
+//   @@schema("pipeline_raw")
+// }
+
+// enum DataChangeEventTypeHubspot {
+//   deletion
+//   creation
+//   propertyChange
+
+//   @@map("data_change_event_type_hubspot")
+//   @@schema("pipeline_raw")
+// }
+
+// // ---- Data pipeline (prepared)
+// model PreparedHubspotContact {
+//   id       Int    @id @unique
+//   nickName String @map("nick_name")
+
+//   @@map("hubspot_deal")
+//   @@schema("pipeline_prepared")
+// }
+
+// ---- Operational (unified)
 model Bear {
   id        String   @id @unique @default(uuid())
   nickName  String   @map("nick_name")
   createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @default(now()) @map("updated_at") @updatedAt
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
 
-  @@schema("operational")
   @@map("bears")
+  @@schema("operational")
 }

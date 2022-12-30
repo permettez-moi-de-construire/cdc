@@ -102,6 +102,7 @@
   },
   "references": [
     { "path": "./packages/00-amqp" },
-    { "path": "./packages/00-database" }
+    { "path": "./packages/00-database" },
+    { "path": "./packages/00-common" }
   ]
 }

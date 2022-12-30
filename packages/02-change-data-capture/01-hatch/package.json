@@ -12,15 +12,16 @@
   },
   "dependencies": {
     "@algar/cdc-amqp": "0.0.1",
+    "@algar/theia-common": "0.0.1",
     "@permettezmoideconstruire/amqp-connector": "^2.3.3",
     "binary-parser": "^2.2.1",
-    "chalk": "^4.1.2",
     "date-fns": "^2.29.3",
     "envalid": "^7.3.1",
     "lauqe": "^1.5.0",
     "pg-logical-replication": "^2.0.2",
     "ts-node": "^10.9.1",
-    "uuid": "^9.0.0"
+    "uuid": "^9.0.0",
+    "zod": "^3.20.2"
   },
   "devDependencies": {
     "@types/amqplib": "^0.10.0",

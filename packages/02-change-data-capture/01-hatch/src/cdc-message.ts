@@ -1,6 +1,6 @@
 export type CDCBaseMessage = {
   eventId: string
-  occuredAt: Date
+  occurredAt: Date
   table: string
   schema: string
 }

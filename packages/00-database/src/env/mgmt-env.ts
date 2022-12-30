@@ -1,3 +1,4 @@
+import { LogLevel, logLevelValidator } from '@algar/theia-common'
 import * as envalid from 'envalid'
 
 const knownNodeEnv = ['development', 'production', 'test'] as const
@@ -7,6 +8,7 @@ type CleanedEnv<T> = T & envalid.CleanedEnvAccessors
 
 interface MgmtEnv {
   NODE_ENV: KnownNodeEnv
+  LOG_LEVEL: LogLevel
   DATABASE_REPL_WAL2JSON_SLOT_NAME: string
   DATABASE_REPL_PGOUTPUT_SLOT_NAME: string
   DATABASE_REPL_PGOUTPUT_PUB_NAME: string
@@ -15,6 +17,7 @@ interface MgmtEnv {
 
 const mgmtEnvValidators = {
   NODE_ENV: envalid.str({ choices: knownNodeEnv }),
+  LOG_LEVEL: logLevelValidator(),
   DATABASE_REPL_WAL2JSON_SLOT_NAME: envalid.str(),
   DATABASE_REPL_PGOUTPUT_SLOT_NAME: envalid.str(),
   DATABASE_REPL_PGOUTPUT_PUB_NAME: envalid.str(),

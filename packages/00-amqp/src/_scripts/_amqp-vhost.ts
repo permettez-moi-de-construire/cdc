@@ -1,6 +1,6 @@
-import chalk from 'chalk'
 import axios from 'axios'
 import { MgmtEnv } from '../env/mgmt-env'
+import { logger } from '../log'
 
 const createVhost = async (env: MgmtEnv) => {
   const amqpMgmtAxios = axios.create({
@@ -9,9 +9,9 @@ const createVhost = async (env: MgmtEnv) => {
 
   try {
     await amqpMgmtAxios.put(`/vhosts/${env.AMQP_VHOST}`)
-    console.log(chalk`Amqp vhost {blue ${env.AMQP_VHOST}} created`)
+    logger.info(`Amqp vhost ${env.AMQP_VHOST} created`)
   } catch (err) {
-    console.error(chalk`Error creating amqp vhost {red ${env.AMQP_VHOST}}`)
+    logger.error(`Error creating amqp vhost ${env.AMQP_VHOST}`)
     throw err
   }
 }
@@ -23,9 +23,9 @@ const dropVhost = async (env: MgmtEnv) => {
 
   try {
     await amqpMgmtAxios.delete(`/vhosts/${env.AMQP_VHOST}`)
-    console.log(chalk`Amqp vhost {blue ${env.AMQP_VHOST}} dropped`)
+    logger.info(`Amqp vhost ${env.AMQP_VHOST} dropped`)
   } catch (err) {
-    console.error(chalk`Error dropping amqp vhost {red ${env.AMQP_VHOST}}`)
+    logger.error(`Error dropping amqp vhost ${env.AMQP_VHOST}`)
     throw err
   }
 }

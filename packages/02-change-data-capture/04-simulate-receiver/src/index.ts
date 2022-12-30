@@ -1,4 +1,3 @@
-import chalk from 'chalk'
 import { appEnv } from './env/app-env'
 import express from 'express'
 import http from 'http'
@@ -15,20 +14,20 @@ const go = async () => {
     // Simulate random failures 1 times / 2
     shouldWork = !shouldWork
 
-    console.info(chalk`Received event {blue ${JSON.stringify(req.body)}}`)
+    console.info(`Received event ${JSON.stringify(req.body)}`)
 
     if (!shouldWork) {
-      console.info(chalk`Simulating {yellow error} reply from webhook`)
+      console.info(`Simulating error reply from webhook`)
       res.status(500).json(null)
       return
     }
 
-    console.info(chalk`Simulating {green success} reply from webhook`)
+    console.info(`Simulating success reply from webhook`)
     res.status(200).json(null)
   })
 
   server.listen(appEnv.RECEIVER_PORT, () =>
-    console.info(chalk`Magic happens on port {green ${appEnv.RECEIVER_PORT}}`),
+    console.info(`Magic happens on port ${appEnv.RECEIVER_PORT}`),
   )
   await new Promise((resolve, reject) => {
     server.on('close', resolve)

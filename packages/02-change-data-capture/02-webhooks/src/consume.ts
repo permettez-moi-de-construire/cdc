@@ -8,7 +8,6 @@ import type { Channel, Message, Options, Replies } from 'amqplib'
 import _shortUuid from 'short-uuid'
 import { appEnv } from './env/app-env'
 import { logAmqpEvent, logFullAmqpEvent, logger } from './log'
-import chalk from 'chalk'
 const shortUuid = _shortUuid()
 
 const createQueue = (amqpClient: Amqp) => async (webhook: Webhook) => {
@@ -36,19 +35,19 @@ const consumeQueue =
   async (callback: OnJsonMessageCallback, options: Options.Consume) => {
     const reply = (await amqpQueue.consumeJson(async (msg) => {
       try {
-        logAmqpEvent(logger.verbose)(msg, amqpQueue)
-        logFullAmqpEvent(logger.debug)(msg)
+        logAmqpEvent(logger.debug)(msg, amqpQueue)
+        logFullAmqpEvent(logger.info)(msg)
 
         await callback(msg)
         await amqpQueue.ack(msg as Message)
       } catch (err: unknown) {
-        // TODO: requeue
         logger.error(
-          chalk`Error handling event {red ${
+          `Error handling event ${
             err instanceof Error ? err.message : String(err)
-          }}`,
+          }`,
         )
         logger.debug(err)
+        // TODO: requeue ?
         await amqpQueue.nack(msg as Message, false, false)
       }
     }, options)) as Replies.Consume

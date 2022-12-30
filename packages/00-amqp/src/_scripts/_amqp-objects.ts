@@ -1,20 +1,28 @@
-import chalk from 'chalk'
 import { Amqp } from '@permettezmoideconstruire/amqp-connector'
 import { MgmtEnv } from '../env/mgmt-env'
+import type { Options } from 'amqplib'
+import { logger } from '../log'
 
-const createQueue = async (env: MgmtEnv, queueName: string) => {
+const createQueue = async (
+  env: MgmtEnv,
+  queueName: string,
+  options?: Options.AssertQueue,
+) => {
   const amqpClient = new Amqp({ confirm: true })
 
   try {
     await amqpClient.connect(env.AMQP_URL)
 
-    await amqpClient._getChannel().assertQueue(queueName, { durable: true })
-    console.log(chalk`Amqp queue {blue ${queueName}} created`)
+    await amqpClient._getChannel().assertQueue(queueName, {
+      durable: true,
+      ...options,
+    })
+    logger.info(`Amqp queue ${queueName} created`)
   } catch (err) {
-    console.error(chalk`Error creating amqp queue {red ${queueName}}`)
+    logger.error(`Error creating amqp queue ${queueName}`)
     throw err
   } finally {
-    amqpClient.disconnect().catch(console.error)
+    amqpClient.disconnect().catch(logger.error)
   }
 }
 
@@ -25,12 +33,12 @@ const dropQueue = async (env: MgmtEnv, queueName: string) => {
     await amqpClient.connect(env.AMQP_URL)
 
     await amqpClient._getChannel().deleteQueue(queueName)
-    console.log(chalk`Amqp queue {blue ${queueName}} dropped`)
+    logger.info(`Amqp queue ${queueName} dropped`)
   } catch (err) {
-    console.error(chalk`Error dropping amqp queue {red ${queueName}}`)
+    logger.error(`Error dropping amqp queue ${queueName}`)
     throw err
   } finally {
-    amqpClient.disconnect().catch(console.error)
+    amqpClient.disconnect().catch(logger.error)
   }
 }
 
@@ -38,25 +46,26 @@ const createExchange = async (
   env: MgmtEnv,
   exchangeName: string,
   exchangeType: string,
+  options?: Options.AssertExchange,
 ) => {
   const amqpClient = new Amqp({ confirm: true })
 
   try {
     await amqpClient.connect(env.AMQP_URL)
 
-    await amqpClient
-      ._getChannel()
-      .assertExchange(exchangeName, exchangeType, { durable: true })
-    console.log(
-      chalk`Amqp exchange {blue ${exchangeName}.${exchangeType}} created`,
-    )
+    await amqpClient._getChannel().assertExchange(exchangeName, exchangeType, {
+      durable: true,
+      ...options,
+    })
+
+    logger.info(`Amqp exchange ${exchangeName} (${exchangeType}) created`)
   } catch (err) {
-    console.error(
-      chalk`Error creating amqp exchange {red ${exchangeName}.${exchangeType}}`,
+    logger.error(
+      `Error creating amqp exchange ${exchangeName} (${exchangeType})`,
     )
     throw err
   } finally {
-    amqpClient.disconnect().catch(console.error)
+    amqpClient.disconnect().catch(logger.error)
   }
 }
 
@@ -67,12 +76,12 @@ const dropExchange = async (env: MgmtEnv, exchangeName: string) => {
     await amqpClient.connect(env.AMQP_URL)
 
     await amqpClient._getChannel().deleteExchange(exchangeName)
-    console.log(chalk`Amqp exchange {blue ${exchangeName}} dropped`)
+    logger.info(`Amqp exchange ${exchangeName} dropped`)
   } catch (err) {
-    console.error(chalk`Error dropping amqp exchange {red ${exchangeName}}`)
+    logger.error(`Error dropping amqp exchange ${exchangeName}`)
     throw err
   } finally {
-    amqpClient.disconnect().catch(console.error)
+    amqpClient.disconnect().catch(logger.error)
   }
 }
 
@@ -90,16 +99,16 @@ const bindQueue = async (
     await amqpClient
       ._getChannel()
       .bindQueue(queueName, exchangeName, routingKey)
-    console.log(
-      chalk`Amqp queue {blue ${queueName}} bound to {blue ${exchangeName}} for key {blue ${routingKey}}`,
+    logger.info(
+      `Amqp queue ${queueName} bound to ${exchangeName} for key ${routingKey}`,
     )
   } catch (err) {
-    console.error(
-      chalk`Error binding amqp queue {red ${queueName}} to exchange {red ${exchangeName}} for key {red ${routingKey}}`,
+    logger.error(
+      `Error binding amqp queue ${queueName} to exchange ${exchangeName} for key ${routingKey}`,
     )
     throw err
   } finally {
-    amqpClient.disconnect().catch(console.error)
+    amqpClient.disconnect().catch(logger.error)
   }
 }
 
@@ -117,16 +126,16 @@ const unbindQueue = async (
     await amqpClient
       ._getChannel()
       .unbindQueue(queueName, exchangeName, routingKey)
-    console.log(
-      chalk`Amqp queue {blue ${queueName}} unbound from {blue ${exchangeName}} for key {blue ${routingKey}}`,
+    logger.info(
+      `Amqp queue ${queueName} unbound from ${exchangeName} for key ${routingKey}`,
     )
   } catch (err) {
-    console.error(
-      chalk`Error unbinding amqp queue {red ${queueName}} from exchange {red ${exchangeName}} for key {red ${routingKey}}`,
+    logger.error(
+      `Error unbinding amqp queue ${queueName} from exchange ${exchangeName} for key ${routingKey}`,
     )
     throw err
   } finally {
-    amqpClient.disconnect().catch(console.error)
+    amqpClient.disconnect().catch(logger.error)
   }
 }
 

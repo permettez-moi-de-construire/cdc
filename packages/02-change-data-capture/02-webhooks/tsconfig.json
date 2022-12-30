@@ -6,12 +6,18 @@
       "@algar/theia-db": ["../../00-database/src/index.ts"]
     }
   },
+  "include": [
+    "src/**/*.ts"
+  ],
   "files": [
     "src/index.ts"
   ],
   "references": [
     {
       "path": "../../00-amqp"
+    },
+    {
+      "path": "../../00-common"
     },
     {
       "path": "../../00-database"

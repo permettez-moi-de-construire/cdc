@@ -1,18 +1,16 @@
+import { createLogger, LogLevel } from '@algar/theia-common'
 import { appEnv } from './env/app-env'
-import winston, { LeveledLogMethod } from 'winston'
+
 import type { ConsumeMessageFields, MessageProperties } from 'amqplib'
 import { AmqpQueue } from '@permettezmoideconstruire/amqp-connector'
-import chalk from 'chalk'
 import { Webhook } from '@algar/theia-db'
 
-const logger = winston.createLogger({
-  level: appEnv.LOG_LEVEL,
-  format: winston.format.simple(),
-  transports: [new winston.transports.Console({ handleExceptions: true })],
-})
+export const logger = createLogger('amqp', appEnv.LOG_LEVEL)
+
+export type LoggerMethod = (...msg: unknown[]) => void
 
 const logAmqpEvent =
-  (logLevel: LeveledLogMethod) =>
+  (logLevel: LoggerMethod) =>
   (
     event: {
       fields: ConsumeMessageFields
@@ -21,27 +19,28 @@ const logAmqpEvent =
     queue: AmqpQueue,
   ) => {
     logLevel(
-      chalk`{grey [${event.properties.timestamp}]} (${queue.name}) Received event {green ${event.fields.routingKey}} {bold [${event.properties.messageId}]}`,
+      `[${event.properties.timestamp}] (${queue.name}) Received event ${event.fields.routingKey} [${event.properties.messageId}]`,
     )
   }
 
 const logFullAmqpEvent =
-  (logLevel: LeveledLogMethod) =>
+  (logLevel: LoggerMethod) =>
   (event: { fields: ConsumeMessageFields; properties: MessageProperties }) => {
-    logLevel(chalk`{blue ${JSON.stringify(event, null, 2)} }`)
+    logLevel(`${JSON.stringify(event, null, 2)}`)
   }
 
 const logDetailledSubscribe =
-  (logLevel: LeveledLogMethod) =>
+  (logLevel: LoggerMethod) =>
   (
     routingKey: string,
     consumerTag: string,
     queue: AmqpQueue,
     webhook: Webhook,
   ) => {
-    logLevel(chalk`Queue:        {cyan ${queue.name} }`)
-    logLevel(chalk`Key:          {cyan ${routingKey} }`)
-    logLevel(chalk`Consumer tag: {cyan ${consumerTag} }`)
-    logLevel(chalk`Url:          {cyan ${webhook.url} }`)
+    logLevel(`Queue:        ${queue.name}`)
+    logLevel(`Key:          ${routingKey}`)
+    logLevel(`Consumer tag: ${consumerTag}`)
+    logLevel(`Url:          ${webhook.url}`)
   }
-export { logger, logAmqpEvent, logFullAmqpEvent, logDetailledSubscribe }
+
+export { logAmqpEvent, logFullAmqpEvent, logDetailledSubscribe }

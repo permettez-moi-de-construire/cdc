@@ -1,4 +1,3 @@
-import chalk from 'chalk'
 import { amqpClient, amqpQueue, amqpExchange } from '@algar/cdc-amqp'
 import { appEnv } from './env/app-env'
 import { PrismaClient } from '@algar/theia-db'
@@ -29,12 +28,12 @@ const go = async () => {
     // Consume for monitoring
     await amqpQueue.consumeJson(
       async (msg) => {
-        logAmqpEvent(logger.verbose)(msg, amqpQueue)
-        logFullAmqpEvent(logger.debug)(msg)
+        logAmqpEvent(logger.debug)(msg, amqpQueue)
+        logFullAmqpEvent(logger.info)(msg)
       },
       { noAck: true },
     )
-    logger.info(chalk`Waiting for amqp events on {blue ${amqpQueue.name} }`)
+    logger.info(`Waiting for amqp events on ${amqpQueue.name}`)
 
     // Consume for each subscribed webhook
     const webhooks = await prismaClient.webhook.findMany()
@@ -54,7 +53,7 @@ const go = async () => {
           noAck: false,
         },
       )
-      logger.info(chalk`Binding webhook {blue ${webhook.id}}`)
+      logger.info(`Binding webhook ${webhook.id}`)
 
       await prismaClient.webhook.update({
         data: {
@@ -67,7 +66,7 @@ const go = async () => {
     }
 
     server.listen(appEnv.WEBHOOKS_PORT, () =>
-      logger.info(chalk`Magic happens on port {green ${appEnv.WEBHOOKS_PORT}}`),
+      logger.info(`Magic happens on port ${appEnv.WEBHOOKS_PORT}`),
     )
     await new Promise((resolve, reject) => {
       server.on('close', resolve)
