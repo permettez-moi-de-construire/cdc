@@ -4,7 +4,7 @@
   "main": "index.ts",
   "license": "MIT",
   "scripts": {
-    "dev": "dotenv -e ../../../.env -- ts-node src/index",
+    "dev": "dotenv -e ../../../.env -e ./.env -- ts-node src/index",
     "lint": "eslint src",
     "fix": "eslint src --fix",
     "format": "prettier --write \"src/**/*.{ts,tsx}\""

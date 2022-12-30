@@ -5,7 +5,7 @@
   "license": "MIT",
   "scripts": {
     "dev": "nodemon src/index",
-    "start": "dotenv -e ../../../.env -- ts-node src/index",
+    "start": "dotenv -e ../../../.env -e ./.env -- ts-node src/index",
     "lint": "eslint src",
     "fix": "eslint src --fix",
     "format": "prettier --write \"src/**/*.{ts,tsx}\""

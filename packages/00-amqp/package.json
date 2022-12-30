@@ -9,14 +9,14 @@
     "format": "prettier --write \"src/**/*.{ts,tsx}\"",
     "amqp:prepare": "yarn _amqp:create-vhost && yarn _amqp:create-exchanges && yarn _amqp:create-queues && yarn _amqp:bind-queues",
     "amqp:teardown": "yarn _amqp:unbind-queues && yarn _amqp:drop-queues && yarn _amqp:drop-exchanges && yarn _amqp:drop-vhost",
-    "_amqp:create-vhost": "dotenv -e ../../.env -- ts-node src/_scripts/create-amqp-vhost",
-    "_amqp:drop-vhost": "dotenv -e ../../.env -- ts-node src/_scripts/drop-amqp-vhost",
-    "_amqp:create-exchanges": "dotenv -e ../../.env -- ts-node src/_scripts/create-amqp-exchanges",
-    "_amqp:drop-exchanges": "dotenv -e ../../.env -- ts-node src/_scripts/drop-amqp-exchanges",
-    "_amqp:create-queues": "dotenv -e ../../.env -- ts-node src/_scripts/create-amqp-queues",
-    "_amqp:drop-queues": "dotenv -e ../../.env -- ts-node src/_scripts/drop-amqp-queues",
-    "_amqp:bind-queues": "dotenv -e ../../.env -- ts-node src/_scripts/bind-amqp-queues",
-    "_amqp:unbind-queues": "dotenv -e ../../.env -- ts-node src/_scripts/unbind-amqp-queues"
+    "_amqp:create-vhost": "dotenv -e ../../.env -e ./.env -- ts-node src/_scripts/create-amqp-vhost",
+    "_amqp:drop-vhost": "dotenv -e ../../.env -e ./.env -- ts-node src/_scripts/drop-amqp-vhost",
+    "_amqp:create-exchanges": "dotenv -e ../../.env -e ./.env -- ts-node src/_scripts/create-amqp-exchanges",
+    "_amqp:drop-exchanges": "dotenv -e ../../.env -e ./.env -- ts-node src/_scripts/drop-amqp-exchanges",
+    "_amqp:create-queues": "dotenv -e ../../.env -e ./.env -- ts-node src/_scripts/create-amqp-queues",
+    "_amqp:drop-queues": "dotenv -e ../../.env -e ./.env -- ts-node src/_scripts/drop-amqp-queues",
+    "_amqp:bind-queues": "dotenv -e ../../.env -e ./.env -- ts-node src/_scripts/bind-amqp-queues",
+    "_amqp:unbind-queues": "dotenv -e ../../.env -e ./.env -- ts-node src/_scripts/unbind-amqp-queues"
   },
   "dependencies": {
     "@algar/theia-common": "0.0.1",
