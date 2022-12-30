@@ -18,7 +18,8 @@
     "forceConsistentCasingInFileNames": true,
     "noFallthroughCasesInSwitch": true,
     "paths": {
-      "@algar/theia-db": ["../00-database/src/index.ts"]
+      "@algar/theia-db": ["../00-database/src/index.ts"],
+      "@algar/theia-common": ["../00-common/src/index.ts"]
     }
   }
 }

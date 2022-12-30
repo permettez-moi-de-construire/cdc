@@ -1,12 +1,13 @@
-import { LogLevel, logLevelValidator } from '@algar/theia-common'
+import {
+  CleanedEnv,
+  knownNodeEnv,
+  KnownNodeEnv,
+  LogLevel,
+  logLevelValidator,
+} from '@algar/theia-common'
 import { Duration } from 'date-fns'
 import * as envalid from 'envalid'
 import { durationArrayValidator } from './duration-array'
-
-const knownNodeEnv = ['development', 'production', 'test'] as const
-type KnownNodeEnv = typeof knownNodeEnv[number]
-
-type CleanedEnv<T> = T & envalid.CleanedEnvAccessors
 
 interface MgmtEnv {
   NODE_ENV: KnownNodeEnv

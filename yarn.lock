@@ -2262,7 +2262,7 @@ enhanced-resolve@^5.0.0, enhanced-resolve@^5.10.0, enhanced-resolve@^5.7.0:
 
 envalid@^7.3.1:
   version "7.3.1"
-  resolved "https://registry.npmjs.org/envalid/-/envalid-7.3.1.tgz"
+  resolved "https://registry.yarnpkg.com/envalid/-/envalid-7.3.1.tgz#5bf6bbb4effab2d64a1991d8078b4ae38924f0d2"
   integrity sha512-KL1YRwn8WcoF/Ty7t+yLLtZol01xr9ZJMTjzoGRM8NaSU+nQQjSWOQKKJhJP2P57bpdakJ9jbxqQX4fGTOicZg==
   dependencies:
     tslib "2.3.1"

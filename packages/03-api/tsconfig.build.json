@@ -3,6 +3,9 @@
   "exclude": ["node_modules", "test", "dist", "**/*spec.ts"],
   "references": [
     {
+      "path": "../00-common"
+    },
+    {
       "path": "../00-database"
     }
   ]

@@ -1,10 +1,6 @@
+import { CleanedEnv, knownNodeEnv, KnownNodeEnv } from '@algar/theia-common'
 import { Injectable } from '@nestjs/common'
 import * as envalid from 'envalid'
-
-const knownNodeEnv = ['development', 'production', 'test'] as const
-type KnownNodeEnv = typeof knownNodeEnv[number]
-
-type CleanedEnv<T> = T & envalid.CleanedEnvAccessors
 
 interface AppEnv {
   NODE_ENV: KnownNodeEnv

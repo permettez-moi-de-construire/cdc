@@ -13,6 +13,9 @@
   ],
   "references": [
     {
+      "path": "../../00-common"
+    },
+    {
       "path": "../../00-database"
     }
   ],
