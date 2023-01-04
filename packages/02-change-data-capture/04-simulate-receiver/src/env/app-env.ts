@@ -3,12 +3,12 @@ import * as envalid from 'envalid'
 
 interface AppEnv {
   NODE_ENV: KnownNodeEnv
-  RECEIVER_PORT: number
+  PORT: number
 }
 
 const appEnvValidators = {
   NODE_ENV: envalid.str({ choices: knownNodeEnv }),
-  RECEIVER_PORT: envalid.port(),
+  PORT: envalid.port(),
 }
 
 const getAppEnv = (env: NodeJS.ProcessEnv = process.env) => {

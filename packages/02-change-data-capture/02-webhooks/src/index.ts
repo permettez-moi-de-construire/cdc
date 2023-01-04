@@ -28,8 +28,8 @@ const go = async () => {
     // Consume for monitoring
     await amqpQueue.consumeJson(
       async (msg) => {
-        logAmqpEvent(logger.debug)(msg, amqpQueue)
-        logFullAmqpEvent(logger.info)(msg)
+        logAmqpEvent(logger.info)(msg, amqpQueue)
+        logFullAmqpEvent(logger.debug)(msg)
       },
       { noAck: true },
     )
@@ -65,8 +65,8 @@ const go = async () => {
       })
     }
 
-    server.listen(appEnv.WEBHOOKS_PORT, () =>
-      logger.info(`Magic happens on port ${appEnv.WEBHOOKS_PORT}`),
+    server.listen(appEnv.PORT, () =>
+      logger.info(`Magic happens on port ${appEnv.PORT}`),
     )
     await new Promise((resolve, reject) => {
       server.on('close', resolve)

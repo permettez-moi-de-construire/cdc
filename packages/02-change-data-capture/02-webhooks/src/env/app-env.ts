@@ -10,7 +10,7 @@ import * as envalid from 'envalid'
 interface AppEnv {
   NODE_ENV: KnownNodeEnv
   LOG_LEVEL: LogLevel
-  WEBHOOKS_PORT: number
+  PORT: number
   AMQP_URL: string
   AMQP_CONSUME_QUEUE: string
   AMQP_PUBLISH_EXCHANGE: string
@@ -22,7 +22,7 @@ interface AppEnv {
 const appEnvValidators = {
   NODE_ENV: envalid.str({ choices: knownNodeEnv }),
   LOG_LEVEL: logLevelValidator(),
-  WEBHOOKS_PORT: envalid.port(),
+  PORT: envalid.port(),
   AMQP_URL: envalid.url(),
   AMQP_CONSUME_QUEUE: envalid.str(),
   AMQP_PUBLISH_EXCHANGE: envalid.str(),

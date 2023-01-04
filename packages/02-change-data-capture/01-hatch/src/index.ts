@@ -52,7 +52,7 @@ const go = async () => {
             })
 
             logger.info(`Forwarded ${key} event {${lsn}}`)
-            logger.info(`=> to {${eventId}}`)
+            logger.debug(`=> to {${eventId}}`)
           } catch (err: unknown) {
             logger.error(`Error forwarding event {${lsn}}`)
             logger.error(err)

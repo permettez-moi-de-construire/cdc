@@ -12,9 +12,9 @@ const handleError = async (
   amqpWaitExchange: AmqpExchange,
   retryDelayDurations: Duration[],
 ) => {
-  return amqpErrorQueue.consumeJson(
+  const consumeResult = amqpErrorQueue.consumeJson(
     async (msg) => {
-      // Retrieve retries count from header
+      // Retrieve "retries count" from header
       const _xRetries: unknown = msg.properties.headers['x-retries']
       const maybeNumberSchema = z.number().min(0).optional().nullable()
       const parsedXRetries = maybeNumberSchema.safeParse(_xRetries)
@@ -56,10 +56,14 @@ const handleError = async (
     },
     { noAck: false },
   )
+
+  logger.info(`Waiting for errors on ${amqpErrorQueue.name}`)
+
+  return consumeResult
 }
 
 const handleRequeue = (amqp: Amqp) => async (amqpRequeueQueue: AmqpQueue) => {
-  return amqpRequeueQueue.consumeJson(
+  const consumeResult = amqpRequeueQueue.consumeJson(
     async (msg) => {
       // Retreive original queue where message errored
       const _originalQueueName = msg.properties.headers['x-first-death-queue']
@@ -82,6 +86,10 @@ const handleRequeue = (amqp: Amqp) => async (amqpRequeueQueue: AmqpQueue) => {
     },
     { noAck: false },
   )
+
+  logger.info(`Waiting for requeues on ${amqpRequeueQueue.name}`)
+
+  return consumeResult
 }
 
 export { handleError, handleRequeue }

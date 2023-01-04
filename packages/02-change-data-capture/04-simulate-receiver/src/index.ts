@@ -26,8 +26,8 @@ const go = async () => {
     res.status(200).json(null)
   })
 
-  server.listen(appEnv.RECEIVER_PORT, () =>
-    console.info(`Magic happens on port ${appEnv.RECEIVER_PORT}`),
+  server.listen(appEnv.PORT, () =>
+    console.info(`Magic happens on port ${appEnv.PORT}`),
   )
   await new Promise((resolve, reject) => {
     server.on('close', resolve)

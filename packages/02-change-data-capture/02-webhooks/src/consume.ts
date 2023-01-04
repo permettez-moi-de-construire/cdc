@@ -35,8 +35,8 @@ const consumeQueue =
   async (callback: OnJsonMessageCallback, options: Options.Consume) => {
     const reply = (await amqpQueue.consumeJson(async (msg) => {
       try {
-        logAmqpEvent(logger.debug)(msg, amqpQueue)
-        logFullAmqpEvent(logger.info)(msg)
+        logAmqpEvent(logger.info)(msg, amqpQueue)
+        logFullAmqpEvent(logger.debug)(msg)
 
         await callback(msg)
         await amqpQueue.ack(msg as Message)
