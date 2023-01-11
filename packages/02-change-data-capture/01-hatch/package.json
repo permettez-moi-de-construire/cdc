@@ -13,7 +13,7 @@
   "dependencies": {
     "@algar/cdc-amqp": "0.0.1",
     "@algar/theia-common": "0.0.1",
-    "@permettezmoideconstruire/amqp-connector": "^2.3.3",
+    "@permettezmoideconstruire/amqp-connector": "^2.4.0-0",
     "binary-parser": "^2.2.1",
     "date-fns": "^2.29.3",
     "envalid": "^7.3.1",

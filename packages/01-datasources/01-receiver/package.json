@@ -12,7 +12,7 @@
   },
   "dependencies": {
     "@algar/cdc-amqp": "0.0.1",
-    "@permettezmoideconstruire/amqp-connector": "^2.3.3",
+    "@permettezmoideconstruire/amqp-connector": "^2.4.0-0",
     "date-fns": "^2.29.3",
     "envalid": "^7.3.1",
     "pg-logical-replication": "^2.0.2",

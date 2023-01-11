@@ -9,12 +9,18 @@ const createRouter = (
   prismaClient: PrismaClient,
   amqpClient: Amqp,
   publishExchange: AmqpExchange,
+  errorExchange: AmqpExchange,
 ) => {
   const router = express.Router()
 
   router.post(
     '/',
-    ...subscribeHandler(prismaClient, amqpClient, publishExchange),
+    ...subscribeHandler(
+      prismaClient,
+      amqpClient,
+      publishExchange,
+      errorExchange,
+    ),
   )
   router.delete(
     '/:id',

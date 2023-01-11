@@ -35,6 +35,7 @@ const subscribeHandler = (
   prismaClient: PrismaClient,
   amqpClient: Amqp,
   publishExchange: AmqpExchange,
+  errorExchange: AmqpExchange,
 ) =>
   createEndpoint({
     body: subscribeBodySchema,
@@ -49,7 +50,10 @@ const subscribeHandler = (
       // Create an AMQP queue
       const { amqpQueue, consumerTag, routingKey } = await createConsumingQueue(
         amqpClient,
-      )(publishExchange)(webhook)(callWebhook, { noAck: false })
+      )(
+        publishExchange,
+        errorExchange,
+      )(webhook)(callWebhook, { noAck: false })
 
       logDetailledSubscribe(logger.debug)(
         routingKey,

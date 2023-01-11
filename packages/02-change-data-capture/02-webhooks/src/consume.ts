@@ -10,16 +10,20 @@ import { appEnv } from './env/app-env'
 import { logAmqpEvent, logFullAmqpEvent, logger } from './log'
 const shortUuid = _shortUuid()
 
-const createQueue = (amqpClient: Amqp) => async (webhook: Webhook) => {
-  const queueId = shortUuid.fromUUID(webhook.id)
+const createQueue =
+  (amqpClient: Amqp) =>
+  (deadLetterExchange: AmqpExchange) =>
+  async (webhook: Webhook) => {
+    const queueId = shortUuid.fromUUID(webhook.id)
 
-  const amqpQueue = amqpClient.defineQueue(queueId, {
-    durable: true,
-  })
-  await amqpQueue.assert()
+    const amqpQueue = amqpClient.defineQueue(queueId, {
+      durable: true,
+      deadLetterExchange: deadLetterExchange.name,
+    })
+    await amqpQueue.assert()
 
-  return amqpQueue
-}
+    return amqpQueue
+  }
 
 const bindQueue =
   (amqpExchange: AmqpExchange, amqpQueue: AmqpQueue) =>
@@ -33,7 +37,7 @@ const bindQueue =
 const consumeQueue =
   (amqpQueue: AmqpQueue) =>
   async (callback: OnJsonMessageCallback, options: Options.Consume) => {
-    const reply = (await amqpQueue.consumeJson(async (msg) => {
+    const reply = await amqpQueue.consumeJson(async (msg) => {
       try {
         logAmqpEvent(logger.info)(msg, amqpQueue)
         logFullAmqpEvent(logger.debug)(msg)
@@ -47,24 +51,24 @@ const consumeQueue =
           }`,
         )
         logger.debug(err)
-        // TODO: requeue ?
+
         await amqpQueue.nack(msg as Message, false, false)
       }
-    }, options)) as Replies.Consume
+    }, options)
 
     return reply
   }
 
 const createConsumingQueue =
   (amqpClient: Amqp) =>
-  (amqpExchange: AmqpExchange) =>
+  (amqpExchange: AmqpExchange, amqpErrorExchange: AmqpExchange) =>
   (webhook: Webhook) =>
   async (
     callback: (webhook: Webhook) => OnJsonMessageCallback,
     options: Options.Consume,
   ) => {
     // Create an AMQP queue
-    const amqpQueue = await createQueue(amqpClient)(webhook)
+    const amqpQueue = await createQueue(amqpClient)(amqpErrorExchange)(webhook)
 
     // Bind it to exchange
     const routingKey = await bindQueue(amqpExchange, amqpQueue)(

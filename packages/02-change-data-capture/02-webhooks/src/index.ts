@@ -1,4 +1,9 @@
-import { amqpClient, amqpQueue, amqpExchange } from '@algar/cdc-amqp'
+import {
+  amqpClient,
+  amqpQueue,
+  amqpExchange,
+  amqpDlxExchange,
+} from '@algar/cdc-amqp'
 import { appEnv } from './env/app-env'
 import { PrismaClient } from '@algar/theia-db'
 import express from 'express'
@@ -23,7 +28,10 @@ const go = async () => {
       amqpClient.connect(appEnv.AMQP_URL),
     ])
 
-    app.use('/webhooks', createRouter(prismaClient, amqpClient, amqpExchange))
+    app.use(
+      '/webhooks',
+      createRouter(prismaClient, amqpClient, amqpExchange, amqpDlxExchange),
+    )
 
     // Consume for monitoring
     await amqpQueue.consumeJson(
