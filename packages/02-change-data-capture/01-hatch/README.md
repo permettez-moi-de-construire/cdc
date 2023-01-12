@@ -1,4 +1,4 @@
-[← Theia / 03-change-data-capture](/README.md)
+[← Theia / 03-change-data-capture](/packages/02-change-data-capture)
 
 # Theia / 03-change-data-capture / 01-hatch
 
