@@ -27,7 +27,7 @@ It compound of 2 separate components
   - exposing a simple webhooks API (subscribe / unsubscribe)
   - and consuming AMQP events of the hatch and posting them to webhooks subscribers
 
-### Communication
+## Communication
 
 Changes are published by **Hatch** to **Dispatcher** via AMQP exchanges and queues.
 The binding can be expressed as follow :
@@ -38,7 +38,7 @@ its name is defined through an environment variable.
 
 This setup allows per-subscription events lifecycle. In other words, each webhook subscription is managed independantly — be it on success, retries, failures, delays, etc.
 
-#### Topic selection
+### Topic selection
 
 Topic selection is made in the webhook subscription body itself, and reflected in the binding routing key :
 
