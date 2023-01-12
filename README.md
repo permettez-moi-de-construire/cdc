@@ -40,6 +40,9 @@ The blocks and components are located inside [`packages`](./packages) directory 
   - [`packages` / `03-change-data-capture` / `01-hatch`](./packages/02-change-data-capture/01-hatch) : CDC hatch, see [logical architecture](#logical) above. It's meant to be launched as a script.
   - [`packages` / `03-change-data-capture` / `02-dispatcher`](./packages/02-change-data-capture/02-webhooks) : CDC webhooks dispatcher, see [logical architecture](#logical) above. It's meant to be launched as a script.
 
+# Workspace scripts
+TODO
+
 # General troubleshooting
 
 ### Hoisting
