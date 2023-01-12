@@ -1,6 +1,6 @@
 [← Theia](/README.md)
 
-# Theia / Change Data Capture
+# Theia / 03-change-data-capture
 
 This block is the **CDC** (Change Data Capture) part of Theia. It's responsible of watching operational database changes and dispatching them through webhooks.
 
