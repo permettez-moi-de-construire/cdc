@@ -24,4 +24,12 @@ The project is divided into several blocks that can be presented as follow :
 
 ### Repository
 
-The project is designed as a monorepo
+The project is designed as a monorepo using [yarn workspaces](https://classic.yarnpkg.com/lang/en/docs/workspaces/) with yarn v1.X
+
+# General troubleshooting
+
+### Hoisting
+Libraries like [prisma](https://www.prisma.io/) [generate some code inside `node_modules`](https://www.prisma.io/docs/concepts/components/prisma-client/working-with-prismaclient/generating-prisma-client) (outside of their own folder). This pattern is known to cause conflict issues with yarn workspaces. Thus, they should be ommited from hoisting mecanism with [`workspaces.nohoist` key in package.json](https://github.com/permettez-moi-de-construire/theia/blob/master/package.json)
+
+### Various yarn strange issues
+Traveling the web you will find some commands for workspace management, mostly the ones starting with `yarn workspaces` (like `yarn workspaces foreach`). Those are only available with recent versions of yarn (2.X, 3.X) which are not used here.
